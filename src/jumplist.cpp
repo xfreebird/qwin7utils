@@ -42,9 +42,6 @@ namespace QW7 {
                 if(app_id.length() > 0) {
                     m_handler->SetAppID(app_id.toStdWString().c_str());
                 }
-
-                //init new list
-                //InitList();
             }
         }
 
