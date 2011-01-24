@@ -19,9 +19,9 @@ FORMS    += mainwindow.ui
 win32:RC_FILE  = example.rc
 
 win32:debug {
-    LIBS += -L$$PWD/../libin/debug
+    LIBS += -L$$PWD/../qwin7utils-build-desktop/debug
 } else {
-    LIBS += -L$$PWD/../libin/release
+    LIBS += -L$$PWD/../qwin7utils-build-desktop/release
 }
 
 LIBS += libqwin7utils libuser32 libole32 libshell32 libshlwapi
