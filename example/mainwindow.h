@@ -9,6 +9,7 @@
 #include <objidl.h>
 #include "../src/jumplist.h"
 #include "../src/appusermodel.h"
+#include "../src/taskbarbutton.h"
 
 #include <QTimer>
 
@@ -32,6 +33,7 @@ protected:
 private:
     Ui::MainWindow *ui;
     QW7::JumpList mJumpList;
+    QW7::TaskbarButton* mTaskbar;
 
 #ifdef Q_OS_WIN32
     UINT mtaskBarCreatedMessage;

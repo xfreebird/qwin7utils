@@ -6,7 +6,7 @@
 #include <QGraphicsScene>
 #include "../src/jumplist.h"
 #include "../src/appusermodel.h"
-
+#include "../src/taskbarbutton.h"
 
 using namespace QW7;
 
@@ -16,8 +16,10 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+
     ui->setupUi(this);
 
+    mTaskbar = new TaskbarButton(this);
     AppUserModel::SetCurrentProcessExplicitAppUserModelID(g_app_id);
 
 #ifdef Q_OS_WIN32
@@ -35,6 +37,11 @@ bool MainWindow::winEvent(MSG * message, long * result)
 {
     if (message->message == mtaskBarCreatedMessage)
     {
+        mTaskbar->Init();
+
+        qDebug() << mTaskbar->SetState(STATE_PAUSED);
+        qDebug() << mTaskbar->SetProgresValue(450, 1000);
+
         QList<JumpListItem> task_list;
 
         QString icons_source("C:\\windows\\explorer.exe");
