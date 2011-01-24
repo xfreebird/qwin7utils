@@ -42,6 +42,10 @@ bool MainWindow::winEvent(MSG * message, long * result)
         qDebug() << mTaskbar->SetState(STATE_PAUSED);
         qDebug() << mTaskbar->SetProgresValue(450, 1000);
 
+        QIcon icon(":/exclamation.ico");
+        qDebug() << mTaskbar->SetOverlayIcon(icon, "Exclamation");
+
+
         QList<JumpListItem> task_list;
 
         QString icons_source("C:\\windows\\explorer.exe");

@@ -64,6 +64,22 @@ namespace QW7 {
         }
     }
 
+    long TaskbarButton::SetOverlayIcon(const QIcon& icon, QString description) {
+        if (m_private) {
+
+            HICON overlay_icon = icon.pixmap(48).toWinHICON();
+            if (overlay_icon) {
+                long result = m_private->TBHandler()->SetOverlayIcon(m_widget_id, overlay_icon, description.toStdWString().c_str());
+
+                DestroyIcon(overlay_icon);
+
+                return result;
+            }
+        }
+
+        return -1;
+    }
+
     long TaskbarButton::SetState(TB_STATE state) {
         if (m_private) {
             return m_private->TBHandler()->SetProgressState(m_widget_id, (TBPFLAG)state);

@@ -20,6 +20,7 @@
 #ifndef TASKBARBUTTON_H
 #define TASKBARBUTTON_H
 
+#include <QIcon>
 #include <QString>
 #include <QWidget>
 
@@ -49,6 +50,8 @@ namespace QW7 {
         ~TaskbarButton();
 
     public slots:
+        long SetOverlayIcon(const QIcon& icon, QString description);
+
         long SetState(TB_STATE state);
         long SetProgresValue(unsigned long long done, unsigned long long total);
     };

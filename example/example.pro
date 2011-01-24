@@ -26,3 +26,5 @@ win32:debug {
 
 LIBS += libqwin7utils libuser32 libole32 libshell32 libshlwapi
 
+RESOURCES += \
+    icons.qrc
