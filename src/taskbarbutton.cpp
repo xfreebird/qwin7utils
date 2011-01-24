@@ -98,7 +98,7 @@ namespace QW7 {
 
 
     TaskbarButton::~TaskbarButton() {
-        if (!m_private) {
+        if (m_private) {
             delete m_private;
         }
     }
