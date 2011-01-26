@@ -153,9 +153,17 @@ namespace QW7 {
                 JumpListItem item = items.at(index);
 
                 if (item.m_type == JL_ITEM) {
-                    hr = obj_collection->AddObject(JLItem2ShellItem(item));
+                    IShellItem* s_item = JLItem2ShellItem(item);
+
+                    if (s_item) {
+                        hr = obj_collection->AddObject(s_item);
+                    }
                 } else if (item.m_type != JL_OTHER){
-                    hr = obj_collection->AddObject(JLItem2ShellLink(item));
+                    IShellLink* s_link = JLItem2ShellLink(item);
+
+                    if (s_link) {
+                        hr = obj_collection->AddObject(s_link);
+                    }
                 }
             }
 
