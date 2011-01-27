@@ -9,7 +9,7 @@
 #include <objidl.h>
 #include <shellapi.h>
 
-// Structs types and enums definitions for Windows 7 taskbar
+//Definitions for Windows 7 Taskbar and JumpList
 
 typedef enum THUMBBUTTONMASK
 {
@@ -121,21 +121,15 @@ typedef enum
 typedef GUID KNOWNFOLDERID;
 #define REFKNOWNFOLDERID const KNOWNFOLDERID &
 
-// Taskbar interface
+//MIDL_INTERFACE("ea1afb91-9e28-4b86-90e9-9e9f8a5eefaf")
 DECLARE_INTERFACE_(ITaskbarList3,IUnknown)
 {
-    // IUnknown
-    STDMETHOD(QueryInterface) (THIS_ REFIID riid,void **ppv) PURE;
-    STDMETHOD_(ULONG,AddRef) (THIS) PURE;
-    STDMETHOD_(ULONG,Release) (THIS) PURE;
-    // ITaskbarList
-    STDMETHOD(HrInit) (THIS) PURE;
-    STDMETHOD(AddTab) (THIS_ HWND hwnd) PURE;
-    STDMETHOD(DeleteTab) (THIS_ HWND hwnd) PURE;
-    STDMETHOD(ActivateTab) (THIS_ HWND hwnd) PURE;
-    STDMETHOD(SetActiveAlt) (THIS_ HWND hwnd) PURE;
+    STDMETHOD (HrInit) (THIS) PURE;
+    STDMETHOD (AddTab) (THIS_ HWND hwnd) PURE;
+    STDMETHOD (DeleteTab) (THIS_ HWND hwnd) PURE;
+    STDMETHOD (ActivateTab) (THIS_ HWND hwnd) PURE;
+    STDMETHOD (SetActiveAlt) (THIS_ HWND hwnd) PURE;
     STDMETHOD (MarkFullscreenWindow) (THIS_ HWND hwnd, int fFullscreen) PURE;
-    // ITaskbarList3
     STDMETHOD (SetProgressValue) (THIS_ HWND hwnd, ULONGLONG ullCompleted, ULONGLONG ullTotal) PURE;
     STDMETHOD (SetProgressState) (THIS_ HWND hwnd, TBPFLAG tbpFlags) PURE;
     STDMETHOD (RegisterTab) (THIS_ HWND hwndTab,HWND hwndMDI) PURE;
