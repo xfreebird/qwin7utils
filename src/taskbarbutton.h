@@ -23,6 +23,8 @@
 #include <QIcon>
 #include <QString>
 #include <QWidget>
+#include <QList>
+#include <QPixmap>
 
 #ifdef Q_OS_WIN32
 namespace QW7 {
@@ -47,6 +49,8 @@ namespace QW7 {
     public:
         explicit TaskbarButton(QObject *parent);
         void Init();
+
+        void createCustomToolbar(QList<QPixmap>& images);
         ~TaskbarButton();
 
     public slots:

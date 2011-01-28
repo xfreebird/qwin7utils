@@ -17,6 +17,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <QBitmap>
+#include <QPixmap>
+#include <QDebug>
+
 #include "taskbarbutton.h"
 
 #ifdef Q_OS_WIN32
@@ -66,13 +70,11 @@ namespace QW7 {
 
     long TaskbarButton::SetOverlayIcon(const QIcon& icon, QString description) {
         if (m_private) {
+            HICON overlay_icon = icon.isNull() ? NULL : icon.pixmap(48).toWinHICON();
+            long result = m_private->TBHandler()->SetOverlayIcon(m_widget_id, overlay_icon, description.toStdWString().c_str());
 
-            HICON overlay_icon = icon.pixmap(48).toWinHICON();
             if (overlay_icon) {
-                long result = m_private->TBHandler()->SetOverlayIcon(m_widget_id, overlay_icon, description.toStdWString().c_str());
-
                 DestroyIcon(overlay_icon);
-
                 return result;
             }
         }
@@ -96,6 +98,63 @@ namespace QW7 {
         return -1;
     }
 
+    void TaskbarButton::createCustomToolbar(QList<QPixmap>& images) {
+
+        HIMAGELIST himl;
+        if((himl = ImageList_Create( 20, //cx
+                        20, //cy
+                        ILC_COLOR32,//flags
+                        4,//initial nb of images
+                        0//nb of images that can be added
+                        )))
+        {
+            QPixmap img   = images.at(0);//QPixmap(":/win7/prev");
+            QPixmap img2  = images.at(1);//QPixmap(":/win7/pause");
+            QPixmap img3  = images.at(2);//QPixmap(":/win7/play");
+            QPixmap img4  = images.at(3);//QPixmap(":/win7/next");
+
+            QBitmap mask  = img.createMaskFromColor(Qt::transparent);
+            QBitmap mask2 = img2.createMaskFromColor(Qt::transparent);
+            QBitmap mask3 = img3.createMaskFromColor(Qt::transparent);
+            QBitmap mask4 = img4.createMaskFromColor(Qt::transparent);
+
+            qDebug() << "thumbnails buttons";
+            qDebug() << SUCCEEDED(ImageList_Add(himl, img.toWinHBITMAP(QPixmap::PremultipliedAlpha), mask.toWinHBITMAP()));
+            qDebug() << SUCCEEDED(ImageList_Add(himl, img2.toWinHBITMAP(QPixmap::PremultipliedAlpha), mask2.toWinHBITMAP()));
+            qDebug() << SUCCEEDED(ImageList_Add(himl, img3.toWinHBITMAP(QPixmap::PremultipliedAlpha), mask3.toWinHBITMAP()));
+            qDebug() << SUCCEEDED(ImageList_Add(himl, img4.toWinHBITMAP(QPixmap::PremultipliedAlpha), mask4.toWinHBITMAP()));
+        }
+
+        // Define an array of two buttons. These buttons provide images through an
+        // image list and also provide tooltips.
+        DWORD dwMask = THB_BITMAP | THB_FLAGS;
+
+        THUMBBUTTON thbButtons[3];
+        thbButtons[0].dwMask = (THUMBBUTTONMASK)dwMask;
+        thbButtons[0].iId = 0;
+        thbButtons[0].iBitmap = 0;
+        thbButtons[0].dwFlags = (THUMBBUTTONFLAGS)(THBF_ENABLED);
+
+        thbButtons[1].dwMask = (THUMBBUTTONMASK)dwMask;
+        thbButtons[1].iId = 1;
+        thbButtons[1].iBitmap = 2;
+        thbButtons[1].dwFlags = (THUMBBUTTONFLAGS)(THBF_DISABLED | THBF_NOBACKGROUND);
+
+        thbButtons[2].dwMask = (THUMBBUTTONMASK)dwMask;
+        thbButtons[2].iId = 2;
+        thbButtons[2].iBitmap = 3;
+        thbButtons[2].dwFlags = (THUMBBUTTONFLAGS)(THBF_ENABLED);
+
+        HRESULT hr = m_private->TBHandler()->ThumbBarSetImageList(m_widget_id, himl );
+        qDebug() << hr;
+        if(S_OK == hr){
+            hr = m_private->TBHandler()->ThumbBarAddButtons(m_widget_id, 3, thbButtons);
+            //hr = m_private->TBHandler()->ThumbBarUpdateButtons(m_widget_id, 3, thbButtons);
+            qDebug() << hr;
+        }
+        qDebug() << "Toolbar end";
+
+    }
 
     TaskbarButton::~TaskbarButton() {
         if (m_private) {

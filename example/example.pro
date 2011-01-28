@@ -24,7 +24,7 @@ win32:debug {
     LIBS += -L$$PWD/../qwin7utils-build-desktop/release
 }
 
-LIBS += libqwin7utils libuser32 libole32 libshell32 libshlwapi
+LIBS += libqwin7utils libuser32 libole32 libshell32 libshlwapi libcomctl32
 
 RESOURCES += \
     icons.qrc
