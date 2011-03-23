@@ -13,6 +13,8 @@ SOURCES += main.cpp\
         mainwindow.cpp
 
 HEADERS  += mainwindow.h
+HEADERS += ../src/taskbar.h \
+    ../src/taskbarbutton.h
 
 FORMS    += mainwindow.ui
 

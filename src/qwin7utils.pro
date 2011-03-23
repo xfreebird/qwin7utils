@@ -12,11 +12,19 @@ CONFIG += staticlib
 
 SOURCES += appusermodel.cpp \
            jumplist.cpp \
-    taskbarbutton.cpp
+    taskbarbutton.cpp \
+    taskbar.cpp \
+    taskbartoolbar.cpp \
+    taskbarthumbnail.cpp
 
 HEADERS += appusermodel.h \
            jumplist.h \
            win7_include.h \
-    taskbarbutton.h
+    taskbarbutton.h \
+    taskbar.h \
+    taskbartoolbar.h \
+    taskbarthumbnail.h \
+    tbprivatedata.h \
+    jlprivatedata.h
 
 #LIBS += libuser32 libole32 libshell32 libshlwapi

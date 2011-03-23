@@ -75,15 +75,21 @@ namespace QW7 {
 
     };
 
+    typedef enum KnownListType {
+        LIST_RECENT = 0,
+        LIST_FREQUENT = 1
+    } KnownListType;
+
+    struct JLPrivateData;
+
     class JumpList
     {
     private:
-        struct PrivateData;
 
         QString m_app_id;
-        PrivateData* m_private;
+        JLPrivateData* m_private;
 
-        long GetKnownList(int type, QList<JumpListItem>& items);
+        long GetKnownList(KnownListType type, QList<JumpListItem>& items);
 
     public:
         JumpList(QString app_id = "");

@@ -35,9 +35,8 @@ private:
     QW7::JumpList mJumpList;
     QW7::TaskbarButton* mTaskbar;
 
-#ifdef Q_OS_WIN32
-    UINT mtaskBarCreatedMessage;
-#endif //Q_OS_WIN32
+private slots:
+    void on_pushButton_clicked();
 };
 
 #endif // MAINWINDOW_H

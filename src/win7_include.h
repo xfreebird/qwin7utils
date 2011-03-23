@@ -8,6 +8,7 @@
 #include <initguid.h>
 #include <objidl.h>
 #include <shellapi.h>
+//#include <ShObjIdl.h>
 
 //Definitions for Windows 7 Taskbar and JumpList
 

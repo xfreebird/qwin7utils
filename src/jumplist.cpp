@@ -20,56 +20,12 @@
 #include "jumplist.h"
 
 #ifdef Q_OS_WIN32
+
 #include "win7_include.h"
+#include "jlprivatedata.h"
 
 namespace QW7 {
 
-    struct JumpList::PrivateData {
-        bool m_list_is_initialized;
-        UINT m_max_count;
-        IObjectArray* m_array;
-        ICustomDestinationList* m_handler;
-
-        PrivateData(QString app_id) {
-            m_handler = NULL;
-            m_array = NULL;
-            m_list_is_initialized = false;
-
-            HRESULT hr = CoCreateInstance(CLSID_DestinationList, NULL, CLSCTX_INPROC_SERVER, IID_ICustomDestinationList,
-                                          reinterpret_cast<void**> (&(m_handler)));
-
-            if (SUCCEEDED(hr)){
-                if(app_id.length() > 0) {
-                    m_handler->SetAppID(app_id.toStdWString().c_str());
-                }
-            }
-        }
-
-        inline ICustomDestinationList* ListHandler() { return m_handler;}
-
-        void InitList() {
-            ReleaseList();
-
-            m_max_count = 0;
-            m_list_is_initialized = SUCCEEDED(m_handler->BeginList(&m_max_count, IID_IObjectArray, reinterpret_cast<void**> (&(m_array))));
-        }
-
-        void ReleaseList() {
-            if (m_array) {
-                m_array->Release();
-                m_array = NULL;
-                m_list_is_initialized = false;
-            }
-        }
-
-        ~PrivateData() {
-            if (m_handler) {
-                m_handler->Release();
-            }
-
-            ReleaseList();
-        }
-    };
 
     namespace LOCAL_UTILS {
 
@@ -230,7 +186,7 @@ namespace QW7 {
 
     JumpList::JumpList(QString app_id) {
         m_app_id = app_id;
-        m_private = new PrivateData(app_id);
+        m_private = new JLPrivateData(app_id);
     }
 
     long JumpList::SetAppID(QString app_id) {
@@ -356,7 +312,7 @@ namespace QW7 {
     }
 
     //IApplicationDocumentLists
-    long JumpList::GetKnownList(int type, QList<JumpListItem>& items) {
+    long JumpList::GetKnownList(KnownListType type, QList<JumpListItem>& items) {
         IObjectArray* object_array = NULL;
         IApplicationDocumentLists* app_documents = NULL;
 
@@ -368,7 +324,7 @@ namespace QW7 {
                 app_documents->SetAppID(m_app_id.toStdWString().c_str());
             }
 
-            hr = app_documents->GetList(type == 0 ? ADLT_RECENT : ADLT_FREQUENT, 0, IID_IObjectArray,
+            hr = app_documents->GetList(type == LIST_RECENT ? ADLT_RECENT : ADLT_FREQUENT, 0, IID_IObjectArray,
                                         reinterpret_cast<void**> (&(object_array)));
 
             if (SUCCEEDED(hr)) {
@@ -383,11 +339,11 @@ namespace QW7 {
     }
 
     long JumpList::GetRecentList(QList<JumpListItem>& items) {
-        return GetKnownList(0, items);
+        return GetKnownList(LIST_RECENT, items);
     }
 
     long JumpList::GetFrequentList(QList<JumpListItem>& items) {
-        return GetKnownList(1, items);
+        return GetKnownList(LIST_FREQUENT, items);
     }
 
     //IApplicationDestinations

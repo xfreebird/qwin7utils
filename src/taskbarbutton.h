@@ -26,37 +26,35 @@
 #include <QList>
 #include <QPixmap>
 
+#include "taskbar.h"
+
 #ifdef Q_OS_WIN32
 namespace QW7 {
 
-    typedef enum TB_STATE {
+    typedef enum ProgressBarState {
         STATE_NOPROGRESS = 0x0,
         STATE_INDETERMINATE = 0x1,
         STATE_NORMAL = 0x2,
         STATE_ERROR = 0x4,
         STATE_PAUSED = 0x8
-    } TB_STATE;
+    } ProgressBarState;
 
-    class TaskbarButton : public QObject {
+    struct TBPrivateData;
+
+    class TaskbarButton : public Taskbar {
 
         Q_OBJECT
     private:
         WId m_widget_id;
-        struct PrivateData;
-        PrivateData* m_private;
-
 
     public:
-        explicit TaskbarButton(QObject *parent);
-        void Init();
-
-        void createCustomToolbar(QList<QPixmap>& images);
-        ~TaskbarButton();
+        explicit TaskbarButton(QObject* parent);
 
     public slots:
+        void SetWindow(QObject* window);
         long SetOverlayIcon(const QIcon& icon, QString description);
 
-        long SetState(TB_STATE state);
+        long SetState(ProgressBarState state);
         long SetProgresValue(unsigned long long done, unsigned long long total);
     };
 }
