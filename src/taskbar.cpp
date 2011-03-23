@@ -24,7 +24,6 @@
 #include <QMutexLocker>
 #include "tbprivatedata.h"
 #include "win7_include.h"
-#include <QDebug>
 
 namespace QW7 {
 
@@ -35,18 +34,18 @@ namespace QW7 {
 
     Taskbar::Taskbar(QObject* parent) : QObject(parent) {
         QMutexLocker locker(&m_mutex);
+
         m_instanceCounter++;
+        m_taskBarCreatedId = WM_NULL;
     }
 
 
     bool Taskbar::winEvent(MSG* message, long* result) {
-        static UINT taskBarCreatedId = WM_NULL;
-
-        if (taskBarCreatedId == WM_NULL) {
-            taskBarCreatedId = RegisterWindowMessage(L"TaskbarButtonCreated");
+        if (m_taskBarCreatedId == WM_NULL) {
+            m_taskBarCreatedId = RegisterWindowMessage(L"TaskbarButtonCreated");
         }
 
-        if (message->message == taskBarCreatedId) {
+        if (message->message == m_taskBarCreatedId) {
             QMutexLocker locker(&m_mutex);
 
             if (!m_private) {

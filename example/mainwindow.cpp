@@ -40,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(mTaskbar, SIGNAL(isReady()), this, SLOT(on_pushButton_clicked()));
 
     connect(special, SIGNAL(triggered()), this, SLOT(actionpressed()));
+
+
     QIcon icon = QApplication::style()->standardIcon(QStyle::SP_VistaShield);
     ui->pushButton->setIcon(icon);
 }

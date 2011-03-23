@@ -19,7 +19,6 @@
 
 #include <QBitmap>
 #include <QPixmap>
-#include <QDebug>
 #include <QPainter>
 
 #include "taskbarbutton.h"

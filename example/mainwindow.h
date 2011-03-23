@@ -35,6 +35,7 @@ private:
     QAction* special;
     bool toolbarcanbeused;
     Ui::MainWindow *ui;
+    QMainWindow* mainwindow2;
     QW7::JumpList mJumpList;
     QW7::TaskbarButton* mTaskbar;
     QW7::TaskbarToolbar* mToolbar;

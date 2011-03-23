@@ -145,7 +145,8 @@ namespace QW7 {
         default:
             return false;
         }
-        return false;
+
+        return Taskbar::winEvent(message, result);
     }
 
 
