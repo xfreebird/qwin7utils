@@ -21,6 +21,7 @@
 #define TASKBAR_H
 
 #include <QApplication>
+#include <QMutex>
 
 
 #ifdef Q_OS_WIN32
@@ -33,6 +34,8 @@ namespace QW7 {
         Q_OBJECT
 
     protected:
+        static QMutex m_mutex;
+        static int m_instanceCounter;
         static TBPrivateData* m_private;
 
     public:

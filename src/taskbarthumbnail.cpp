@@ -18,10 +18,16 @@
  ***************************************************************************/
 
 #include "taskbarthumbnail.h"
-/*
-TaskbarThumbnail::TaskbarThumbnail(QObject *parent) :
-    Taskbar(parent)
-{
+
+#ifdef Q_OS_WIN32
+#include "win7_include.h"
+#include "tbprivatedata.h"
+
+namespace QW7 {
+
+    TaskbarThumbnail::TaskbarThumbnail(QObject *parent) :  Taskbar(parent) {
+    }
+
 }
 
-*/
+#endif //Q_OS_WIN32

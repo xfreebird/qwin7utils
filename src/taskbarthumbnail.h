@@ -21,19 +21,19 @@
 #define TASKBARTHUMBNAIL_H
 
 #include <QObject>
+
+#ifdef Q_OS_WIN32
 #include "taskbar.h"
 
-/*
-class TaskbarThumbnail : public Taskbar
-{
-    Q_OBJECT
-public:
-    explicit TaskbarThumbnail(QObject *parent = 0);
+namespace QW7 {
 
-signals:
+    class TaskbarThumbnail : public Taskbar
+    {
+        Q_OBJECT
+    public:
+        explicit TaskbarThumbnail(QObject *parent = 0);
 
-public slots:
-
-};
-*/
+    };
+}
+#endif //Q_OS_WIN32
 #endif // TASKBARTHUMBNAIL_H

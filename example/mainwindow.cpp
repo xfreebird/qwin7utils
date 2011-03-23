@@ -21,10 +21,25 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
+    toolbarcanbeused = false;
     AppUserModel::SetCurrentProcessExplicitAppUserModelID(g_app_id);
     mTaskbar = new TaskbarButton(this);
+    mToolbar = new TaskbarToolbar(this);
+
+    QAction* action = new QAction(QIcon(":/prev.png"), "Prev", this);
+    mToolbar->AddAction(action);
+
+    action = new QAction(QIcon(":/play.png"), "Play", this);
+    mToolbar->AddAction(action);
+    special = action;
+
+    action = new QAction(QIcon(":/next.png"), "Next", this);
+    action->setData(QVariant("true"));
+    mToolbar->AddAction(action);
+
     connect(mTaskbar, SIGNAL(isReady()), this, SLOT(on_pushButton_clicked()));
 
+    connect(special, SIGNAL(triggered()), this, SLOT(actionpressed()));
     QIcon icon = QApplication::style()->standardIcon(QStyle::SP_VistaShield);
     ui->pushButton->setIcon(icon);
 }
@@ -38,6 +53,7 @@ MainWindow::~MainWindow()
 bool MainWindow::winEvent(MSG * message, long * result)
 {
     mTaskbar->winEvent(message, result);
+    mToolbar->winEvent(message, result);
 
     return false;
 }
@@ -72,5 +88,17 @@ void MainWindow::on_pushButton_clicked()
 
     mTaskbar->SetState(STATE_PAUSED);
     mTaskbar->SetProgresValue(300, 900);
+
+    mToolbar->Show();
+
+}
+
+void MainWindow::actionpressed() {
+    static bool value = true;
+
+    qDebug() << "Value = " << value;
+    special->setIcon(value ? QIcon(":/pause.png") : QIcon(":/play.png"));
+    special->setText(value ? "Pause" : "Play");
+    value = !value;
 
 }

@@ -20,16 +20,22 @@
 #include "taskbar.h"
 
 #ifdef Q_OS_WIN32
+#include <QMutex>
+#include <QMutexLocker>
 #include "tbprivatedata.h"
 #include "win7_include.h"
 #include <QDebug>
 
 namespace QW7 {
 
+    QMutex Taskbar::m_mutex;
+    int Taskbar::m_instanceCounter = 0;
     TBPrivateData* Taskbar::m_private = NULL;
 
 
     Taskbar::Taskbar(QObject* parent) : QObject(parent) {
+        QMutexLocker locker(&m_mutex);
+        m_instanceCounter++;
     }
 
 
@@ -41,6 +47,8 @@ namespace QW7 {
         }
 
         if (message->message == taskBarCreatedId) {
+            QMutexLocker locker(&m_mutex);
+
             if (!m_private) {
                 m_private = new TBPrivateData();
 
@@ -57,9 +65,15 @@ namespace QW7 {
     }
 
     Taskbar::~Taskbar() {
-        if (m_private) {
-            delete m_private;
-            m_private = NULL;
+        QMutexLocker locker(&m_mutex);
+
+        m_instanceCounter--;
+
+        if (m_instanceCounter == 0) {
+            if (m_private) {
+                delete m_private;
+                m_private = NULL;
+            }
         }
     }
 }

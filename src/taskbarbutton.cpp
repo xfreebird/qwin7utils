@@ -27,7 +27,7 @@
 #ifdef Q_OS_WIN32
 #include "win7_include.h"
 #include "tbprivatedata.h"
-
+#include <QAction>
 namespace QW7 {
 
     TaskbarButton::TaskbarButton(QObject* parent) : Taskbar(parent) {

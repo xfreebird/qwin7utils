@@ -10,6 +10,7 @@
 #include "../src/jumplist.h"
 #include "../src/appusermodel.h"
 #include "../src/taskbarbutton.h"
+#include "../src/taskbartoolbar.h"
 
 #include <QTimer>
 
@@ -31,11 +32,15 @@ protected:
 #endif //Q_OS_WIN32
 
 private:
+    QAction* special;
+    bool toolbarcanbeused;
     Ui::MainWindow *ui;
     QW7::JumpList mJumpList;
     QW7::TaskbarButton* mTaskbar;
+    QW7::TaskbarToolbar* mToolbar;
 
 private slots:
+    void actionpressed();
     void on_pushButton_clicked();
 };
 
