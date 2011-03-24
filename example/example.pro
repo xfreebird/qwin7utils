@@ -15,7 +15,8 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h
 HEADERS += ../src/taskbar.h \
     ../src/taskbarbutton.h \
-    ../src/taskbartoolbar.h
+    ../src/taskbartoolbar.h\
+    ../src/taskbarthumbnail.h
 
 FORMS    += mainwindow.ui
 
@@ -27,7 +28,7 @@ win32:debug {
     LIBS += -L$$PWD/../qwin7utils-build-desktop/release
 }
 
-LIBS += libqwin7utils libuser32 libole32 libshell32 libshlwapi libcomctl32
+LIBS += libqwin7utils libuser32 libole32 libshell32 libshlwapi libcomctl32 libgdi32
 
 RESOURCES += \
     icons.qrc

@@ -21,17 +21,28 @@
 #define TASKBARTHUMBNAIL_H
 
 #include <QObject>
+#include <QPixmap>
 
 #ifdef Q_OS_WIN32
 #include "taskbar.h"
 
 namespace QW7 {
 
-    class TaskbarThumbnail : public Taskbar
+    class TaskbarThumbnail : QObject//: public Taskbar
     {
         Q_OBJECT
     public:
         explicit TaskbarThumbnail(QObject *parent = 0);
+        bool winEvent(MSG* message, long* result);
+
+    public slots:
+        void SetWindow(QObject* window);
+        void SetThumbnail(QPixmap thumbnail);
+        void EnableIconicPreview(bool enable);
+
+    private:
+        WId m_widget_id;
+        QPixmap m_thumbnail;
 
     };
 }

@@ -44,6 +44,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QIcon icon = QApplication::style()->standardIcon(QStyle::SP_VistaShield);
     ui->pushButton->setIcon(icon);
+
+    mThumbnail = new TaskbarThumbnail(this);
+    mThumbnail->SetThumbnail(QPixmap(":/logo.png"));
+
 }
 
 MainWindow::~MainWindow()
@@ -56,6 +60,7 @@ bool MainWindow::winEvent(MSG * message, long * result)
 {
     mTaskbar->winEvent(message, result);
     mToolbar->winEvent(message, result);
+    mThumbnail->winEvent(message, result);
 
     return false;
 }
@@ -92,6 +97,8 @@ void MainWindow::on_pushButton_clicked()
     mTaskbar->SetProgresValue(300, 900);
 
     mToolbar->Show();
+    mThumbnail->EnableIconicPreview(true);
+
 
 }
 
@@ -102,5 +109,8 @@ void MainWindow::actionpressed() {
     special->setIcon(value ? QIcon(":/pause.png") : QIcon(":/play.png"));
     special->setText(value ? "Pause" : "Play");
     value = !value;
+
+    mThumbnail->EnableIconicPreview(false);
+
 
 }

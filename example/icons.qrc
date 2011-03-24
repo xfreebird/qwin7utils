@@ -6,5 +6,6 @@
         <file>play.png</file>
         <file>prev.png</file>
         <file>play2.png</file>
+        <file alias="logo.png">Qt-logo.png</file>
     </qresource>
 </RCC>
