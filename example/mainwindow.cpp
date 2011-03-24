@@ -98,6 +98,7 @@ void MainWindow::on_pushButton_clicked()
 
     mToolbar->Show();
     mThumbnail->EnableIconicPreview(true);
+    mThumbnail->SetThumbnailTooltip("Hello World !!!");
 
 
 }

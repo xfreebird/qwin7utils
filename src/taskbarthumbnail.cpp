@@ -63,7 +63,7 @@ namespace QW7 {
         }
     }
 
-    TaskbarThumbnail::TaskbarThumbnail(QObject *parent) : QObject(parent) {//:  Taskbar(parent) {
+    TaskbarThumbnail::TaskbarThumbnail(QObject *parent) : Taskbar(parent) {
         SetWindow(parent);
     }
 
@@ -94,6 +94,12 @@ namespace QW7 {
         m_thumbnail = thumbnail;
     }
 
+    void TaskbarThumbnail::SetThumbnailTooltip(QString tooltip) {
+        if (m_private) {
+            m_private->GetHandler()->SetThumbnailTooltip(m_widget_id, tooltip.toStdWString().c_str());
+        }
+    }
+
     bool TaskbarThumbnail::winEvent(MSG* message, long* result) {
 
         switch (message->message)
@@ -119,7 +125,7 @@ namespace QW7 {
             return false;
         }
 
-        return false;
+        return Taskbar::winEvent(message, result);
     }
 
 

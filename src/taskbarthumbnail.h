@@ -22,13 +22,14 @@
 
 #include <QObject>
 #include <QPixmap>
+#include <QString>
 
 #ifdef Q_OS_WIN32
 #include "taskbar.h"
 
 namespace QW7 {
 
-    class TaskbarThumbnail : QObject//: public Taskbar
+    class TaskbarThumbnail : public Taskbar
     {
         Q_OBJECT
     public:
@@ -38,6 +39,7 @@ namespace QW7 {
     public slots:
         void SetWindow(QObject* window);
         void SetThumbnail(QPixmap thumbnail);
+        void SetThumbnailTooltip(QString tooltip);
         void EnableIconicPreview(bool enable);
 
     private:
