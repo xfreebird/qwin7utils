@@ -6,9 +6,12 @@
 #include <QPainter>
 #include <QPaintEngine>
 
+#include "../src/utils.h"
 #include "../src/jumplist.h"
 #include "../src/appusermodel.h"
 #include "../src/taskbarbutton.h"
+
+#include <windows.h>
 
 using namespace QW7;
 
@@ -20,6 +23,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 
     ui->setupUi(this);
+
+
+    EnableBlurBehindWidget(this, true);
 
     toolbarcanbeused = false;
     AppUserModel::SetCurrentProcessExplicitAppUserModelID(g_app_id);

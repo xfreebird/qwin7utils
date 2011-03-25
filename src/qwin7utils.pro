@@ -15,7 +15,8 @@ SOURCES += appusermodel.cpp \
     taskbarbutton.cpp \
     taskbar.cpp \
     taskbartoolbar.cpp \
-    taskbarthumbnail.cpp
+    taskbarthumbnail.cpp \
+    utils.cpp
 
 HEADERS += appusermodel.h \
            jumplist.h \
@@ -25,6 +26,7 @@ HEADERS += appusermodel.h \
     taskbartoolbar.h \
     taskbarthumbnail.h \
     tbprivatedata.h \
-    jlprivatedata.h
+    jlprivatedata.h \
+    utils.h
 
 #LIBS += libuser32 libole32 libshell32 libshlwapi

@@ -22,46 +22,11 @@
 #ifdef Q_OS_WIN32
 #include <QWidget>
 
+#include "utils.h"
 #include "win7_include.h"
 #include "tbprivatedata.h"
 
 namespace QW7 {
-
-    void DwmSetIconicThumbnail(HWND hwnd, HBITMAP hbmp, DWORD dwSITFlags) {
-        HMODULE shell;
-
-        shell = LoadLibrary(L"dwmapi.dll");
-        if (shell) {
-            t_DwmSetIconicThumbnail set_iconic_thumbnail = reinterpret_cast<t_DwmSetIconicThumbnail>(GetProcAddress (shell, "DwmSetIconicThumbnail"));
-            set_iconic_thumbnail(hwnd, hbmp, dwSITFlags);
-
-            FreeLibrary (shell);
-        }
-    }
-
-    void DwmSetWindowAttribute(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute) {
-        HMODULE shell;
-
-        shell = LoadLibrary(L"dwmapi.dll");
-        if (shell) {
-            t_DwmSetWindowAttribute set_window_attribute = reinterpret_cast<t_DwmSetWindowAttribute>(GetProcAddress (shell, "DwmSetWindowAttribute"));
-            set_window_attribute(hwnd, dwAttribute, pvAttribute, cbAttribute);
-
-            FreeLibrary (shell);
-        }
-    }
-
-    void DwmSetIconicLivePreviewBitmap(HWND hwnd, HBITMAP hbmp, POINT *pptClient, DWORD dwSITFlags) {
-        HMODULE shell;
-
-        shell = LoadLibrary(L"dwmapi.dll");
-        if (shell) {
-            t_DwmSetIconicLivePreviewBitmap set_live_preview = reinterpret_cast<t_DwmSetIconicLivePreviewBitmap>(GetProcAddress (shell, "DwmSetIconicLivePreviewBitmap"));
-            set_live_preview(hwnd, hbmp, pptClient, dwSITFlags);
-
-            FreeLibrary (shell);
-        }
-    }
 
     TaskbarThumbnail::TaskbarThumbnail(QObject *parent) : Taskbar(parent) {
         SetWindow(parent);
@@ -72,21 +37,20 @@ namespace QW7 {
     }
 
     void TaskbarThumbnail::EnableIconicPreview(bool enable) {
-        BOOL fForceIconic = enable ? TRUE : FALSE;
-        BOOL fHasIconicBitmap = enable ? TRUE : FALSE;
+        BOOL _enable = enable ? TRUE : FALSE;
 
         DwmSetWindowAttribute(
             m_widget_id,
             DWMWA_FORCE_ICONIC_REPRESENTATION,
-            &fForceIconic,
-            sizeof(fForceIconic));
+            &_enable,
+            sizeof(_enable));
 
 
         DwmSetWindowAttribute(
             m_widget_id,
             DWMWA_HAS_ICONIC_BITMAP,
-            &fHasIconicBitmap,
-            sizeof(fHasIconicBitmap));
+            &_enable,
+            sizeof(_enable));
 
     }
 
