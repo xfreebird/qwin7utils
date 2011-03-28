@@ -12,6 +12,7 @@
 #include "../src/taskbarbutton.h"
 #include "../src/taskbartoolbar.h"
 #include "../src/taskbarthumbnail.h"
+#include "../src/taskbartabs.h"
 
 #include <QTimer>
 
@@ -27,6 +28,10 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    bool winEventx(MSG * message, long * result) {
+        return winEvent(message, result);
+    }
+
 #ifdef Q_OS_WIN32
 protected:
     bool winEvent(MSG * message, long * result);
@@ -41,10 +46,12 @@ private:
     QW7::TaskbarButton* mTaskbar;
     QW7::TaskbarToolbar* mToolbar;
     QW7::TaskbarThumbnail* mThumbnail;
+    QW7::TaskbarTabs* mTabs;
 
 private slots:
     void actionpressed();
     void on_pushButton_clicked();
+    void tab_activated(QWidget* widget);
 };
 
 #endif // MAINWINDOW_H

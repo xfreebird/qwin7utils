@@ -136,14 +136,12 @@ namespace QW7 {
                     QAction* action = m_actions.at(buttonId);
 
                     if (action) action->trigger();
+                    return true;
                 }
 
 
                 break;
             }
-
-        default:
-            return false;
         }
 
         return Taskbar::winEvent(message, result);

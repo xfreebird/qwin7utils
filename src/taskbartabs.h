@@ -17,12 +17,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef TASKBARTOOLBAR_H
-#define TASKBARTOOLBAR_H
+#ifndef TASKBARTABS_H
+#define TASKBARTABS_H
 
 #include <QList>
-#include <QAction>
-#include <QObject>
+#include <QIcon>
+#include <QWidget>
 
 
 #ifdef Q_OS_WIN32
@@ -30,30 +30,57 @@
 
 namespace QW7 {
 
-    class TaskbarToolbar : public Taskbar
+    class TaskbarTabs : public Taskbar
     {
         Q_OBJECT
     public:
-        explicit TaskbarToolbar(QObject *parent = 0);
-        void AddAction(QAction* action);
-        void AddActions(QList<QAction*>& actions);
-        void Show();
-        bool winEvent(MSG* message, long* result);
-        void SetWindow(QObject* window);
 
-        ~TaskbarToolbar();
+        static TaskbarTabs* GetInstance();
+        static bool eventFilter(void *message_, long *result);
+
+        void SetParentWidget(QWidget* widget);
+        void AddTab(QWidget* widget, QString title);
+        void RemoveTab(QWidget* widget);
+
 
     private:
-        bool m_initialized;
-        WId m_widget_id;
-        QList<QAction*> m_actions;
-        void RemoveActions();
+        struct TaskbarTab {
+            TaskbarTab() : m_title(""), m_widget(NULL), m_tab_widget(NULL) {}
 
-    private slots:
-        void OnActionChanged();
+            QIcon    m_icon;
+            QString  m_title;
+            QWidget* m_widget;
+            QWidget* m_tab_widget;
+        };
 
+        enum TABEVENT {
+            TAB_CLICK = 0,
+            TAB_CLOSE = 1,
+            TAB_HOVER = 2
+        };
+
+        QWidget* m_parentWidget;
+        QList<TaskbarTab*> m_tabs;
+
+        static TaskbarTabs* m_instance;
+        static QCoreApplication::EventFilter m_oldEventFilter;
+
+        TaskbarTabs(QWidget *parent = 0);
+
+        void SetIconicThumbnail(WId id, QSize size);
+        void SetIconicLivePreviewBitmap(WId id);
+        void EnableIconicPreview(QWidget* widget, bool enable);
+
+        QWidget* FindTabByWId(WId id);
+        void TabAction(WId id, TABEVENT action);
+
+
+    signals:
+        void OnTabClicked(QWidget* widget);
+        void OnTabClose(QWidget* widget);
+        void OnTabHover(QWidget* widget);
     };
+
 }
 #endif // Q_OS_WIN32
-
-#endif // TASKBARTOOLBAR_H
+#endif // TASKBARTABS_H

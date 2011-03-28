@@ -3,13 +3,17 @@
 #include <QDebug>
 #include <QPixmap>
 #include <QList>
-#include <QPainter>
-#include <QPaintEngine>
+#include <QLineEdit>
 
 #include "../src/utils.h"
 #include "../src/jumplist.h"
 #include "../src/appusermodel.h"
 #include "../src/taskbarbutton.h"
+
+
+#define WM_DWMSENDICONICTHUMBNAIL         0x0323
+#define WM_DWMSENDICONICLIVEPREVIEWBITMAP 0x0326
+
 
 #include <windows.h>
 
@@ -54,6 +58,12 @@ MainWindow::MainWindow(QWidget *parent) :
     mThumbnail = new TaskbarThumbnail(this);
     mThumbnail->SetThumbnail(QPixmap(":/logo.png"));
 
+    mTabs = TaskbarTabs::GetInstance();
+    mTabs->SetParentWidget(this);
+
+    connect(mTabs, SIGNAL(OnTabClicked(QWidget*)), this, SLOT(tab_activated(QWidget*)));
+    connect(mTabs, SIGNAL(OnTabHover(QWidget*)), this, SLOT(tab_activated(QWidget*)));
+
 }
 
 MainWindow::~MainWindow()
@@ -64,9 +74,12 @@ MainWindow::~MainWindow()
 #ifdef Q_OS_WIN32
 bool MainWindow::winEvent(MSG * message, long * result)
 {
+
     mTaskbar->winEvent(message, result);
     mToolbar->winEvent(message, result);
     mThumbnail->winEvent(message, result);
+    //mTabs->winEvent(message, result);
+
 
     return false;
 }
@@ -102,9 +115,15 @@ void MainWindow::on_pushButton_clicked()
     mTaskbar->SetState(STATE_PAUSED);
     mTaskbar->SetProgresValue(300, 900);
 
-    mToolbar->Show();
     mThumbnail->EnableIconicPreview(true);
     mThumbnail->SetThumbnailTooltip("Hello World !!!");
+
+
+
+    mTabs->AddTab(ui->tabWidget->widget(0), "Tab 1");
+    mTabs->AddTab(ui->tabWidget->widget(1), "Tab 2");
+    mTabs->AddTab(ui->tabWidget->widget(2), "Tab 3");
+    mToolbar->Show();
 
 
 }
@@ -117,7 +136,19 @@ void MainWindow::actionpressed() {
     special->setText(value ? "Pause" : "Play");
     value = !value;
 
-    mThumbnail->EnableIconicPreview(false);
+    //mThumbnail->EnableIconicPreview(false);
 
 
+}
+
+void MainWindow::tab_activated(QWidget* widget) {
+
+    this->activateWindow();
+
+    for (int index = 0; index < 3; index++) {
+        if (ui->tabWidget->widget(index) == widget) {
+            ui->tabWidget->setCurrentIndex(index);
+            break;
+        }
+    }
 }

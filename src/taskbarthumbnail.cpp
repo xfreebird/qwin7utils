@@ -73,6 +73,7 @@ namespace QW7 {
                 DwmSetIconicThumbnail(m_widget_id, hbitmap, 0);
 
                 if (hbitmap) DeleteObject(hbitmap);
+                return true;
             }
             break;
 
@@ -83,10 +84,9 @@ namespace QW7 {
 
                 DwmSetIconicLivePreviewBitmap(m_widget_id, hbitmap, &point, 0);
                 if (hbitmap) DeleteObject(hbitmap);
+                return true;
             }
             break;
-        default:
-            return false;
         }
 
         return Taskbar::winEvent(message, result);

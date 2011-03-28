@@ -33,6 +33,15 @@ enum DWMWINDOWATTRIBUTE
     DWMWA_LAST
 };
 
+// Values designating how Flip3D treats a given window.
+enum DWMFLIP3DWINDOWPOLICY
+{
+    DWMFLIP3D_DEFAULT,      // Hide or include the window in Flip3D based on window style and visibility.
+    DWMFLIP3D_EXCLUDEBELOW, // Display the window under Flip3D and disabled.
+    DWMFLIP3D_EXCLUDEABOVE, // Display the window above Flip3D and enabled.
+    DWMFLIP3D_LAST
+};
+
 typedef enum STPFLAG
 {
     STPF_NONE = 0,

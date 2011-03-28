@@ -53,14 +53,13 @@ namespace QW7 {
 
                 if (m_private) {
                     emit isReady();
+                    return true;
                 }
             }
-        } else switch (message->message){
-                default:
-                    return false;
+
         }
 
-        return false;
+        return qApp->winEventFilter(message, result);
     }
 
     Taskbar::~Taskbar() {

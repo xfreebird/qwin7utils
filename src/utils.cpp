@@ -18,7 +18,7 @@
  ***************************************************************************/
 
 #include "utils.h"
-
+#include <QDebug>
 namespace QW7 {
 
     void DwmSetIconicThumbnail(HWND hwnd, HBITMAP hbmp, DWORD dwSITFlags) {
