@@ -37,6 +37,13 @@ namespace QW7 {
         BOOL fTransitionOnMaximized;
     } DWM_BLURBEHIND, *PDWM_BLURBEHIND;
 
+    typedef struct _MARGINS
+    {
+        int cxLeftWidth;      // width of left border that retains its size
+        int cxRightWidth;     // width of right border that retains its size
+        int cyTopHeight;      // height of top border that retains its size
+        int cyBottomHeight;   // height of bottom border that retains its size
+    } MARGINS, *PMARGINS;
 
     extern "C"
     {
@@ -44,13 +51,16 @@ namespace QW7 {
         typedef HRESULT (WINAPI *t_DwmSetWindowAttribute)(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute);
         typedef HRESULT (WINAPI *t_DwmSetIconicLivePreviewBitmap)(HWND hwnd, HBITMAP hbmp, POINT *pptClient, DWORD dwSITFlags);
         typedef HRESULT (WINAPI *t_DwmEnableBlurBehindWindow)(HWND hWnd, const DWM_BLURBEHIND* pBlurBehind);
-
+        typedef HRESULT (WINAPI *t_DwmExtendFrameIntoClientArea)(HWND hwnd, const MARGINS *pMarInset);
     }
 
     void DwmSetIconicThumbnail(HWND hwnd, HBITMAP hbmp, DWORD dwSITFlags);
     void DwmSetWindowAttribute(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute);
     void DwmSetIconicLivePreviewBitmap(HWND hwnd, HBITMAP hbmp, POINT *pptClient, DWORD dwSITFlags);
     void DwmEnableBlurBehindWindow(HWND hwnd, const DWM_BLURBEHIND* pBlurBehind);
+    void DwmExtendFrameIntoClientArea(HWND hwnd, const MARGINS *pMarInset);
+
+    void ExtendFrameIntoClientArea(QWidget* widget);
     HRESULT EnableBlurBehindWidget(QWidget* widget, bool enable);
 }
 

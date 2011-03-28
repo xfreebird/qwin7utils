@@ -70,6 +70,25 @@ namespace QW7 {
         }
     }
 
+    void DwmExtendFrameIntoClientArea(HWND hwnd, const MARGINS *pMarInset) {
+        HMODULE shell;
+
+        shell = LoadLibrary(L"dwmapi.dll");
+        if (shell) {
+            t_DwmExtendFrameIntoClientArea set_window_frame_into_client_area = reinterpret_cast<t_DwmExtendFrameIntoClientArea>(GetProcAddress (shell, "DwmExtendFrameIntoClientArea"));
+            set_window_frame_into_client_area(hwnd, pMarInset);
+
+            FreeLibrary (shell);
+        }
+
+    }
+
+    void ExtendFrameIntoClientArea(QWidget* widget) {
+        MARGINS margins = {-1};
+
+        DwmExtendFrameIntoClientArea(widget->winId(), &margins);
+    }
+
     HRESULT EnableBlurBehindWidget(QWidget* widget, bool enable)
     {
         HWND hwnd = widget->winId();

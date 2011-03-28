@@ -10,13 +10,13 @@
 #include "../src/appusermodel.h"
 #include "../src/taskbarbutton.h"
 
-
+/*
 #define WM_DWMSENDICONICTHUMBNAIL         0x0323
 #define WM_DWMSENDICONICLIVEPREVIEWBITMAP 0x0326
 
 
 #include <windows.h>
-
+*/
 using namespace QW7;
 
 QString g_app_id("WindowsQt");
@@ -28,9 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
-
     EnableBlurBehindWidget(this, true);
-
+    ExtendFrameIntoClientArea(this);
     toolbarcanbeused = false;
     AppUserModel::SetCurrentProcessExplicitAppUserModelID(g_app_id);
     mTaskbar = new TaskbarButton(this);
@@ -124,8 +123,6 @@ void MainWindow::on_pushButton_clicked()
     mTabs->AddTab(ui->tabWidget->widget(1), "Tab 2");
     mTabs->AddTab(ui->tabWidget->widget(2), "Tab 3");
     mToolbar->Show();
-
-
 }
 
 void MainWindow::actionpressed() {
