@@ -22,6 +22,7 @@
 #ifdef Q_OS_WIN32
 #include <QWidget>
 #include <QDebug>
+#include <QPixmap>
 #include <QMainWindow>
 
 #include "utils.h"
@@ -33,7 +34,21 @@ namespace QW7 {
     TaskbarTabs* TaskbarTabs::m_instance = NULL;
     QCoreApplication::EventFilter TaskbarTabs::m_oldEventFilter = NULL;
 
-    TaskbarTabs::TaskbarTabs(QWidget *parent) : Taskbar((QObject*)parent) {
+    TaskbarTabs::TaskbarTabs() : Taskbar() {
+    }
+
+    TaskbarTabs::~TaskbarTabs() {
+        TaskbarTab* tab;
+        foreach(tab, m_tabs) {
+            m_tabs.removeOne(tab);
+
+            delete tab->m_tab_widget;
+            delete tab;
+        }
+
+        if (m_oldEventFilter) {
+            qApp->setEventFilter(m_oldEventFilter);
+        }
     }
 
     TaskbarTabs* TaskbarTabs::GetInstance() {
@@ -46,248 +61,196 @@ namespace QW7 {
         return m_instance;
     }
 
+    void TaskbarTabs::ReleaseInstance() {
+        if (m_instance != NULL) {
+            delete m_instance;
+        }
+    }
+
     void TaskbarTabs::SetParentWidget(QWidget* widget) {
         m_parentWidget = widget;
-
-        TaskbarTab* tab = new TaskbarTab();
-
-        tab->m_widget = widget;
-        tab->m_tab_widget = widget;
-
-        m_tabs.append(tab);
     }
 
     void TaskbarTabs::AddTab(QWidget* widget, QString title) {
+        AddTab(widget, title, QIcon(), QPixmap());
+    }
+
+    void TaskbarTabs::AddTab(QWidget* widget, QString title, QIcon icon) {
+        AddTab(widget, title, icon, QPixmap());
+    }
+
+    void TaskbarTabs::AddTab(QWidget* widget, QString title, QPixmap pixmap) {
+        AddTab(widget, title, QIcon(), pixmap);
+    }
+
+    void TaskbarTabs::AddTab(QWidget* widget, QString title, QIcon icon, QPixmap pixmap) {
         TaskbarTab* tab = new TaskbarTab();
 
         tab->m_widget = widget;
-        tab->m_tab_widget = new QWidget;
+        tab->m_tab_widget = new QWidget();
         tab->m_tab_widget->setWindowTitle(title);
+        tab->m_tab_widget->setWindowIcon(icon.isNull() ? widget->windowIcon() : icon);
+        tab->m_thumbnail = pixmap;
 
         m_tabs.append(tab);
-        EnableIconicPreview(tab->m_tab_widget, true);
+        EnableWidgetIconicPreview(tab->m_tab_widget, true);
+
+        m_private->GetHandler()->RegisterTab(tab->m_tab_widget->winId(), m_parentWidget->winId());
+        m_private->GetHandler()->SetTabOrder(tab->m_tab_widget->winId(), NULL);
+        m_private->GetHandler()->SetTabActive(NULL, m_tabs.back()->m_tab_widget->winId(), 0);
+    }
+
+    void TaskbarTabs::UpdateTab(QWidget* widget, QString title) {
+        UpdateTab(widget, title, QIcon(), QPixmap());
+    }
+
+    void TaskbarTabs::UpdateTab(QWidget* widget, QString title, QIcon icon) {
+        UpdateTab(widget, title, icon, QPixmap());
+    }
+
+    void TaskbarTabs::UpdateTab(QWidget* widget, QString title, QPixmap pixmap) {
+        UpdateTab(widget, title, QIcon(), pixmap);
+    }
+
+    void TaskbarTabs::UpdateTab(QWidget* widget, QString title, QIcon icon, QPixmap pixmap) {
+        TaskbarTab* tab = FindTabByWId(widget->winId(), true);
+
+        if (tab == NULL) return;
+
+        tab->m_thumbnail = pixmap;
+        tab->m_tab_widget->setWindowIcon(icon);
+        tab->m_tab_widget->setWindowTitle(title);
+
+        InvalidateIconicBitmaps(tab->m_tab_widget);
+    }
 
 
-        qDebug() << "AddWidget" << tab->m_tab_widget->winId();
-        qDebug() << "RegisterTab " << m_private->GetHandler()->RegisterTab(tab->m_tab_widget->winId(), m_parentWidget->winId());
-        qDebug() << "SetTabOrder " << m_private->GetHandler()->SetTabOrder(tab->m_tab_widget->winId(), NULL);
-        qDebug() << "SetTabActive " << m_private->GetHandler()->SetTabActive(NULL, m_tabs.back()->m_tab_widget->winId(), 0);
+    void TaskbarTabs::SetActiveTab(QWidget* widget) {
+        TaskbarTab* tab = FindTabByWId(widget->winId(), true);
+
+        if (tab == NULL) return;
+
+         m_private->GetHandler()->SetTabActive(tab->m_tab_widget->winId(), m_parentWidget->winId(), 0);
     }
 
     void TaskbarTabs::RemoveTab(QWidget* widget) {
+        TaskbarTab* tab = FindTabByWId(widget->winId(), true);
+
+        if (tab == NULL) return;
+
+        m_private->GetHandler()->UnregisterTab(tab->m_tab_widget->winId());
+
+        m_tabs.removeOne(tab);
+        delete tab->m_tab_widget;
+        delete tab;
     }
 
-    QWidget* TaskbarTabs::FindTabByWId(WId id) {
+    void TaskbarTabs::SetTabOrder(QWidget* widget, QWidget* after_widget) {
+         TaskbarTab* tab1 = FindTabByWId(widget->winId(), true);
+         TaskbarTab* tab2 = FindTabByWId(after_widget->winId(), true);
+
+         if (tab1 == NULL || tab2 == NULL) return;
+
+         m_private->GetHandler()->SetTabOrder(tab1->m_tab_widget->winId(), tab2->m_tab_widget->winId());
+    }
+
+    void TaskbarTabs::InvalidateTabThumbnail(QWidget* widget) {
+        TaskbarTab* tab = FindTabByWId(widget->winId());
+
+        if (tab == NULL) return;
+
+        InvalidateIconicBitmaps(tab->m_tab_widget);
+    }
+
+    TaskbarTabs::TaskbarTab* TaskbarTabs::FindTabByWId(WId id, bool inserted) {
         bool found = false;
 
+        WId tabWId = NULL;
         TaskbarTab* tab;
         foreach(tab, m_tabs) {
-            if (tab->m_tab_widget->winId() == id) {
+
+            tabWId = inserted ? tab->m_widget->winId() : tab->m_tab_widget->winId();
+            if (tabWId == id) {
                 found = true;
                 break;
             }
         }
 
-        return found ? tab->m_widget : NULL;
+        return found ? tab : NULL;
     }
 
     void TaskbarTabs::TabAction(WId id, TABEVENT action) {
-        QWidget* widget = FindTabByWId(id);
+        TaskbarTab* tab = FindTabByWId(id);
 
-        if (widget != NULL) {
+        if (tab != NULL) {
             switch (action) {
             case TAB_CLICK :
-                emit OnTabClicked(widget);
+                emit OnTabClicked(tab->m_widget);
                 break;
 
             case TAB_CLOSE:
-                emit OnTabClose(widget);
+                emit OnTabClose(tab->m_widget);
                 break;
 
             case TAB_HOVER:
-                emit OnTabHover(widget);
+                emit OnTabHover(tab->m_widget);
                 break;
             }
         }
     }
 
-    void TaskbarTabs::EnableIconicPreview(QWidget* widget, bool enable) {
-        BOOL _enable = enable ? TRUE : FALSE;
+    void TaskbarTabs::SetPeekBitmap(WId id, QSize size, bool isLive) {
+        TaskbarTab* tab = FindTabByWId(id);
 
-        DwmSetWindowAttribute(
-            widget->winId(),
-            DWMWA_FORCE_ICONIC_REPRESENTATION,
-            &_enable,
-            sizeof(_enable));
+        if (tab == NULL) return;
 
-        DwmSetWindowAttribute(
-            widget->winId(),
-            DWMWA_HAS_ICONIC_BITMAP,
-            &_enable,
-            sizeof(_enable));
+        QPixmap thumbnail = (!tab->m_thumbnail.isNull() && !isLive) ? tab->m_thumbnail :
+                                                                      QPixmap::grabWidget(isLive ? m_parentWidget : tab->m_widget).scaled(size, Qt::KeepAspectRatio);
 
-    }
+        HBITMAP hbitmap = thumbnail.toWinHBITMAP(isLive ? QPixmap::NoAlpha : QPixmap::Alpha);
 
-    void TaskbarTabs::SetIconicThumbnail(WId id, QSize size) {
-        bool found = false;
-        TaskbarTab* tab;
-
-        foreach(tab, m_tabs) {
-            if (tab->m_tab_widget->winId() == id) {
-                found = true;
-                break;
-            }
-        }
-
-        if (!found) return;
-
-        bool isParent = (tab->m_widget->winId() == m_parentWidget->winId());
-
-        QPixmap thumbnail = QPixmap::grabWidget(tab->m_widget).scaled(size, Qt::KeepAspectRatio);
-        HBITMAP hbitmap = thumbnail.toWinHBITMAP(isParent ? QPixmap::NoAlpha : QPixmap::Alpha);
-
-        DwmSetIconicThumbnail(id, hbitmap, 0);
-
-        if (hbitmap) DeleteObject(hbitmap);
-    }
-
-    void TaskbarTabs::SetIconicLivePreviewBitmap(WId id) {
-        bool found = false;
-        TaskbarTab* tab;
-
-        foreach(tab, m_tabs) {
-            if (tab->m_tab_widget->winId() == id) {
-                found = true;
-                break;
-            }
-        }
-
-        if (!found) return;
-
-        QPixmap thumbnail = QPixmap::grabWidget(m_parentWidget).scaled(m_parentWidget->size(), Qt::KeepAspectRatio);
-        HBITMAP hbitmap = thumbnail.toWinHBITMAP();
-
-        DwmSetIconicLivePreviewBitmap(id, hbitmap, 0, 0);
+        isLive ? DwmSetIconicLivePreviewBitmap(id, hbitmap, 0, 0) : DwmSetIconicThumbnail(id, hbitmap, 0);
 
         if (hbitmap) DeleteObject(hbitmap);
     }
 
     bool TaskbarTabs::eventFilter(void *message_, long *result)
     {
-        MSG *message = static_cast<MSG *>(message_);
+        MSG* message = static_cast<MSG*>(message_);
 
         switch(message->message)
         {
         case WM_DWMSENDICONICTHUMBNAIL : {
-                qDebug() << "Iconic " << message->hwnd;
+                if (message->hwnd == TaskbarTabs::GetInstance()->m_parentWidget->winId()) return false;
 
-                TaskbarTabs::GetInstance()->SetIconicThumbnail(message->hwnd, QSize(HIWORD(message->lParam), LOWORD(message->lParam)));
+                TaskbarTabs::GetInstance()->SetPeekBitmap(message->hwnd, QSize(HIWORD(message->lParam), LOWORD(message->lParam)));
                 return true;
             }
         case WM_DWMSENDICONICLIVEPREVIEWBITMAP : {
-                qDebug() << "Live Start" << message->hwnd;
-
                 TaskbarTabs::GetInstance()->TabAction(message->hwnd, TAB_HOVER);
-                TaskbarTabs::GetInstance()->SetIconicLivePreviewBitmap(message->hwnd);
+
+                if (message->hwnd == TaskbarTabs::GetInstance()->m_parentWidget->winId()) return false;
+
+                TaskbarTabs::GetInstance()->SetPeekBitmap(message->hwnd, TaskbarTabs::GetInstance()->m_parentWidget->size(), true);
                 return true;
             }
         case WM_ACTIVATE : {
                 if (LOWORD(message->wParam) == WA_ACTIVE) {
-                    qDebug() << "Activate " << message->hwnd << " " << TaskbarTabs::GetInstance()->m_parentWidget->winId();
-
                     TaskbarTabs::GetInstance()->TabAction(message->hwnd, TAB_CLICK);
                 }
                 return false;
             }
         case WM_CLOSE : {
-                qDebug() << "Close " << message->hwnd;
-
                 TaskbarTabs::GetInstance()->TabAction(message->hwnd, TAB_CLOSE);
                 return false;
             }
         }
 
-        if(TaskbarTabs::m_oldEventFilter)
+        if (TaskbarTabs::m_oldEventFilter)
             return TaskbarTabs::m_oldEventFilter(message_, result);
         else
             return false;
     }
-
-    /*
-    bool TaskbarTabs::winEvent(MSG* message, long* result) {
-
-        switch (message->message)
-        {
-        case WM_DWMSENDICONICTHUMBNAIL: {
-                qDebug() << "MIconic " << message->hwnd;
-
-                QWidget* widget = NULL;
-                foreach(widget, m_tabs) {
-                    if (widget->winId() == message->hwnd) {
-                        break;
-                    }
-                }
-
-                if (!widget) return false;
-
-                QPixmap thumbnail = QPixmap::grabWidget(widget).scaled(HIWORD(message->lParam), LOWORD(message->lParam), Qt::KeepAspectRatio);
-                HBITMAP hbitmap = thumbnail.toWinHBITMAP();
-                DwmSetIconicThumbnail(message->hwnd, hbitmap, 0);
-
-                if (hbitmap) DeleteObject(hbitmap);
-
-
-                return true;
-            }
-            break;
-
-        case WM_DWMSENDICONICLIVEPREVIEWBITMAP: {
-                qDebug() << "MLive " << message->hwnd;
-
-                QWidget* widget = NULL;
-                foreach(widget, m_tabs) {
-                    if (widget->winId() == message->hwnd) {
-                        break;
-                    }
-                }
-
-                if (!widget) return false;
-
-                QPixmap thumbnail = QPixmap::grabWidget(widget).scaled(HIWORD(message->lParam), LOWORD(message->lParam), Qt::KeepAspectRatio);
-                HBITMAP hbitmap = thumbnail.toWinHBITMAP();
-
-                POINT point;
-                point.x = 0; point.y = 0;
-
-                DwmSetIconicLivePreviewBitmap(message->hwnd, hbitmap, &point, 0);
-                if (hbitmap) DeleteObject(hbitmap);
-
-
-                return true;
-
-            }
-            break;
-
-        case WM_ACTIVATE: {
-
-                qDebug() << "WM_ACTIVATE " << message->hwnd;
-                return true;
-            }
-            break;
-
-        case WM_CLOSE: {
-                qDebug() << "WM_CLOSE " << message->hwnd;
-                return true;
-            }
-            break;
-
-        }
-
-        return qApp->winEventFilter(message, result);
-
-
-    }
-    */
 }
 
 #endif //Q_OS_WIN32

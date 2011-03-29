@@ -36,19 +36,30 @@ namespace QW7 {
     public:
 
         static TaskbarTabs* GetInstance();
+        static void ReleaseInstance();
         static bool eventFilter(void *message_, long *result);
 
         void SetParentWidget(QWidget* widget);
-        void AddTab(QWidget* widget, QString title);
-        void RemoveTab(QWidget* widget);
 
+        void AddTab(QWidget* widget, QString title = "");
+        void AddTab(QWidget* widget, QString title, QIcon icon);
+        void AddTab(QWidget* widget, QString title, QPixmap pixmap);
+        void AddTab(QWidget* widget, QString title, QIcon icon, QPixmap pixmap);
+        void SetActiveTab(QWidget* widget);
+        void RemoveTab(QWidget* widget);
+        void SetTabOrder(QWidget* widget, QWidget* after_widget);
+
+        void UpdateTab(QWidget* widget, QString title = "");
+        void UpdateTab(QWidget* widget, QString title, QIcon icon);
+        void UpdateTab(QWidget* widget, QString title, QPixmap pixmap);
+        void UpdateTab(QWidget* widget, QString title, QIcon icon, QPixmap pixmap);
+        void InvalidateTabThumbnail(QWidget* widget);
 
     private:
         struct TaskbarTab {
-            TaskbarTab() : m_title(""), m_widget(NULL), m_tab_widget(NULL) {}
+            TaskbarTab() : m_widget(NULL), m_tab_widget(NULL) {}
 
-            QIcon    m_icon;
-            QString  m_title;
+            QPixmap  m_thumbnail;
             QWidget* m_widget;
             QWidget* m_tab_widget;
         };
@@ -65,15 +76,12 @@ namespace QW7 {
         static TaskbarTabs* m_instance;
         static QCoreApplication::EventFilter m_oldEventFilter;
 
-        TaskbarTabs(QWidget *parent = 0);
+        TaskbarTabs();
+        ~TaskbarTabs();
 
-        void SetIconicThumbnail(WId id, QSize size);
-        void SetIconicLivePreviewBitmap(WId id);
-        void EnableIconicPreview(QWidget* widget, bool enable);
-
-        QWidget* FindTabByWId(WId id);
         void TabAction(WId id, TABEVENT action);
-
+        TaskbarTab* FindTabByWId(WId id, bool inserted = false);
+        void SetPeekBitmap(WId id, QSize size, bool isLive = false);
 
     signals:
         void OnTabClicked(QWidget* widget);

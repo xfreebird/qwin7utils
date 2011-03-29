@@ -33,25 +33,11 @@ namespace QW7 {
     }
 
     void TaskbarThumbnail::SetWindow(QObject* window) {
-        m_widget_id = dynamic_cast<QWidget*>(window)->winId();
+        m_widget = dynamic_cast<QWidget*>(window);
     }
 
     void TaskbarThumbnail::EnableIconicPreview(bool enable) {
-        BOOL _enable = enable ? TRUE : FALSE;
-
-        DwmSetWindowAttribute(
-            m_widget_id,
-            DWMWA_FORCE_ICONIC_REPRESENTATION,
-            &_enable,
-            sizeof(_enable));
-
-
-        DwmSetWindowAttribute(
-            m_widget_id,
-            DWMWA_HAS_ICONIC_BITMAP,
-            &_enable,
-            sizeof(_enable));
-
+        EnableWidgetIconicPreview(m_widget, enable);
     }
 
     void TaskbarThumbnail::SetThumbnail(QPixmap thumbnail) {
@@ -60,7 +46,7 @@ namespace QW7 {
 
     void TaskbarThumbnail::SetThumbnailTooltip(QString tooltip) {
         if (m_private) {
-            m_private->GetHandler()->SetThumbnailTooltip(m_widget_id, tooltip.toStdWString().c_str());
+            m_private->GetHandler()->SetThumbnailTooltip(m_widget->winId(), tooltip.toStdWString().c_str());
         }
     }
 
@@ -69,24 +55,24 @@ namespace QW7 {
         switch (message->message)
         {
         case WM_DWMSENDICONICTHUMBNAIL: {
-                HBITMAP hbitmap = m_thumbnail.toWinHBITMAP();
-                DwmSetIconicThumbnail(m_widget_id, hbitmap, 0);
+                HBITMAP hbitmap = m_thumbnail.toWinHBITMAP(QPixmap::Alpha);
+                DwmSetIconicThumbnail(m_widget->winId(), hbitmap, 0);
 
                 if (hbitmap) DeleteObject(hbitmap);
                 return true;
             }
             break;
+
 
         case WM_DWMSENDICONICLIVEPREVIEWBITMAP: {
-                HBITMAP hbitmap = m_thumbnail.toWinHBITMAP();
-                POINT point;
-                point.x = 0; point.y = 0;
+                HBITMAP hbitmap = QPixmap::grabWidget(m_widget).scaled(m_widget->size(), Qt::KeepAspectRatio).toWinHBITMAP();
 
-                DwmSetIconicLivePreviewBitmap(m_widget_id, hbitmap, &point, 0);
+                DwmSetIconicLivePreviewBitmap(m_widget->winId(), hbitmap, 0, 0);
                 if (hbitmap) DeleteObject(hbitmap);
                 return true;
             }
             break;
+
         }
 
         return Taskbar::winEvent(message, result);

@@ -21,6 +21,66 @@
 #include <QDebug>
 namespace QW7 {
 
+    typedef struct _DWM_BLURBEHIND
+    {
+        DWORD dwFlags;
+        BOOL fEnable;
+        HRGN hRgnBlur;
+        BOOL fTransitionOnMaximized;
+    } DWM_BLURBEHIND, *PDWM_BLURBEHIND;
+
+    typedef struct _MARGINS
+    {
+        int cxLeftWidth;      // width of left border that retains its size
+        int cxRightWidth;     // width of right border that retains its size
+        int cyTopHeight;      // height of top border that retains its size
+        int cyBottomHeight;   // height of bottom border that retains its size
+    } MARGINS, *PMARGINS;
+
+    // Window attributes
+    enum DWMWINDOWATTRIBUTE
+    {
+        DWMWA_NCRENDERING_ENABLED = 1,      // [get] Is non-client rendering enabled/disabled
+        DWMWA_NCRENDERING_POLICY,           // [set] Non-client rendering policy
+        DWMWA_TRANSITIONS_FORCEDISABLED,    // [set] Potentially enable/forcibly disable transitions
+        DWMWA_ALLOW_NCPAINT,                // [set] Allow contents rendered in the non-client area to be visible on the DWM-drawn frame.
+        DWMWA_CAPTION_BUTTON_BOUNDS,        // [get] Bounds of the caption button area in window-relative space.
+        DWMWA_NONCLIENT_RTL_LAYOUT,         // [set] Is non-client content RTL mirrored
+        DWMWA_FORCE_ICONIC_REPRESENTATION,  // [set] Force this window to display iconic thumbnails.
+        DWMWA_FLIP3D_POLICY,                // [set] Designates how Flip3D will treat the window.
+        DWMWA_EXTENDED_FRAME_BOUNDS,        // [get] Gets the extended frame bounds rectangle in screen space
+        DWMWA_HAS_ICONIC_BITMAP,            // [set] Indicates an available bitmap when there is no better thumbnail representation.
+        DWMWA_DISALLOW_PEEK,                // [set] Don't invoke Peek on the window.
+        DWMWA_EXCLUDED_FROM_PEEK,           // [set] LivePreview exclusion information
+        DWMWA_LAST
+    };
+
+    // Values designating how Flip3D treats a given window.
+    enum DWMFLIP3DWINDOWPOLICY
+    {
+        DWMFLIP3D_DEFAULT,      // Hide or include the window in Flip3D based on window style and visibility.
+        DWMFLIP3D_EXCLUDEBELOW, // Display the window under Flip3D and disabled.
+        DWMFLIP3D_EXCLUDEABOVE, // Display the window above Flip3D and enabled.
+        DWMFLIP3D_LAST
+    };
+
+    typedef enum _DWMNCRENDERINGPOLICY {
+      DWMNCRP_USEWINDOWSTYLE,
+      DWMNCRP_DISABLED,
+      DWMNCRP_ENABLED,
+      DWMNCRP_LAST
+    } DWMNCRENDERINGPOLICY;
+
+    extern "C"
+    {
+        typedef HRESULT (WINAPI *t_DwmSetIconicThumbnail)(HWND hwnd, HBITMAP hbmp, DWORD dwSITFlags);
+        typedef HRESULT (WINAPI *t_DwmSetWindowAttribute)(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute);
+        typedef HRESULT (WINAPI *t_DwmSetIconicLivePreviewBitmap)(HWND hwnd, HBITMAP hbmp, POINT *pptClient, DWORD dwSITFlags);
+        typedef HRESULT (WINAPI *t_DwmEnableBlurBehindWindow)(HWND hWnd, const DWM_BLURBEHIND* pBlurBehind);
+        typedef HRESULT (WINAPI *t_DwmExtendFrameIntoClientArea)(HWND hwnd, const MARGINS *pMarInset);
+        typedef HRESULT (WINAPI *t_DwmInvalidateIconicBitmaps)(HWND hwnd);
+    }
+
     void DwmSetIconicThumbnail(HWND hwnd, HBITMAP hbmp, DWORD dwSITFlags) {
         HMODULE shell;
 
@@ -83,13 +143,26 @@ namespace QW7 {
 
     }
 
+    void DwmInvalidateIconicBitmaps(HWND hwnd) {
+        HMODULE shell;
+
+        shell = LoadLibrary(L"dwmapi.dll");
+        if (shell) {
+            t_DwmInvalidateIconicBitmaps invalidate_icon_bitmap = reinterpret_cast<t_DwmInvalidateIconicBitmaps>(GetProcAddress (shell, "DwmInvalidateIconicBitmaps"));
+            invalidate_icon_bitmap(hwnd);
+
+            FreeLibrary (shell);
+        }
+
+    }
+
     void ExtendFrameIntoClientArea(QWidget* widget) {
         MARGINS margins = {-1};
 
         DwmExtendFrameIntoClientArea(widget->winId(), &margins);
     }
 
-    HRESULT EnableBlurBehindWidget(QWidget* widget, bool enable)
+    long EnableBlurBehindWidget(QWidget* widget, bool enable)
     {
         HWND hwnd = widget->winId();
         HRESULT hr = S_OK;
@@ -106,6 +179,27 @@ namespace QW7 {
 
         DwmEnableBlurBehindWindow(hwnd, &bb);
         return hr;
+    }
+
+    void EnableWidgetIconicPreview(QWidget* widget, bool enable) {
+        BOOL _enable = enable ? TRUE : FALSE;
+
+        DwmSetWindowAttribute(
+            widget->winId(),
+            DWMWA_FORCE_ICONIC_REPRESENTATION,
+            &_enable,
+            sizeof(_enable));
+
+        DwmSetWindowAttribute(
+            widget->winId(),
+            DWMWA_HAS_ICONIC_BITMAP,
+            &_enable,
+            sizeof(_enable));
+
+    }
+
+    void InvalidateIconicBitmaps(QWidget* widget) {
+        DwmInvalidateIconicBitmaps(widget->winId());
     }
 
 }

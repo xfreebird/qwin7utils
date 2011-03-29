@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
     toolbarcanbeused = false;
     AppUserModel::SetCurrentProcessExplicitAppUserModelID(g_app_id);
     mTaskbar = new TaskbarButton(this);
+
     mToolbar = new TaskbarToolbar(this);
 
     QAction* action = new QAction(QIcon(":/prev.png"), "Prev", this);
@@ -62,11 +63,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(mTabs, SIGNAL(OnTabClicked(QWidget*)), this, SLOT(tab_activated(QWidget*)));
     connect(mTabs, SIGNAL(OnTabHover(QWidget*)), this, SLOT(tab_activated(QWidget*)));
+    connect(ui->tabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(tab_remove(int)));
+    connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tab_set_active(int)));
 
 }
 
 MainWindow::~MainWindow()
 {
+    TaskbarTabs::ReleaseInstance();
     delete ui;
 }
 
@@ -77,8 +81,6 @@ bool MainWindow::winEvent(MSG * message, long * result)
     mTaskbar->winEvent(message, result);
     mToolbar->winEvent(message, result);
     mThumbnail->winEvent(message, result);
-    //mTabs->winEvent(message, result);
-
 
     return false;
 }
@@ -114,14 +116,15 @@ void MainWindow::on_pushButton_clicked()
     mTaskbar->SetState(STATE_PAUSED);
     mTaskbar->SetProgresValue(300, 900);
 
-    mThumbnail->EnableIconicPreview(true);
-    mThumbnail->SetThumbnailTooltip("Hello World !!!");
+    //mThumbnail->EnableIconicPreview(true);
+    //mThumbnail->SetThumbnailTooltip("Hello World !!!");
 
 
-
-    mTabs->AddTab(ui->tabWidget->widget(0), "Tab 1");
-    mTabs->AddTab(ui->tabWidget->widget(1), "Tab 2");
-    mTabs->AddTab(ui->tabWidget->widget(2), "Tab 3");
+    ui->tabWidget->widget(1)->setWindowIcon(QIcon(":/pause.png"));
+    mTabs->AddTab(ui->tabWidget->widget(0), QString("Tab 1"), QIcon(":/play.png"));
+    mTabs->AddTab(ui->tabWidget->widget(1), QString("Tab 2"));
+    mTabs->AddTab(ui->tabWidget->widget(2), QString("Tab 3"), QPixmap(":/logo.png"));
+    mTabs->SetActiveTab(ui->tabWidget->widget(0));
     mToolbar->Show();
 }
 
@@ -133,7 +136,7 @@ void MainWindow::actionpressed() {
     special->setText(value ? "Pause" : "Play");
     value = !value;
 
-    //mThumbnail->EnableIconicPreview(false);
+    mThumbnail->EnableIconicPreview(false);
 
 
 }
@@ -148,4 +151,19 @@ void MainWindow::tab_activated(QWidget* widget) {
             break;
         }
     }
+}
+
+void MainWindow::tab_remove(int index) {
+    QWidget* widget = ui->tabWidget->widget(index);
+    ui->tabWidget->removeTab(index);
+    mTabs->RemoveTab(widget);
+
+    //widget = ui->tabWidget->currentWidget();
+    //if (widget) mTabs->SetActiveTab(widget);
+
+}
+
+void MainWindow::tab_set_active(int index) {
+    QWidget* widget = ui->tabWidget->widget(index);
+    if (widget) mTabs->SetActiveTab(widget);
 }

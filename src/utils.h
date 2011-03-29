@@ -29,39 +29,23 @@
 
 namespace QW7 {
 
-    typedef struct _DWM_BLURBEHIND
+    enum WindowAttribute
     {
-        DWORD dwFlags;
-        BOOL fEnable;
-        HRGN hRgnBlur;
-        BOOL fTransitionOnMaximized;
-    } DWM_BLURBEHIND, *PDWM_BLURBEHIND;
+            TA_NoAttributes        = 0,
+            TA_Peek_Disallow       = 1,
+            TA_Peek_ExcludeFrom    = 2,
+            TA_Flip3D_ExcludeAbove = 4,
+            TA_Flip3D_ExcludeBelow = 8
+    };
 
-    typedef struct _MARGINS
-    {
-        int cxLeftWidth;      // width of left border that retains its size
-        int cxRightWidth;     // width of right border that retains its size
-        int cyTopHeight;      // height of top border that retains its size
-        int cyBottomHeight;   // height of bottom border that retains its size
-    } MARGINS, *PMARGINS;
-
-    extern "C"
-    {
-        typedef HRESULT (WINAPI *t_DwmSetIconicThumbnail)(HWND hwnd, HBITMAP hbmp, DWORD dwSITFlags);
-        typedef HRESULT (WINAPI *t_DwmSetWindowAttribute)(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute);
-        typedef HRESULT (WINAPI *t_DwmSetIconicLivePreviewBitmap)(HWND hwnd, HBITMAP hbmp, POINT *pptClient, DWORD dwSITFlags);
-        typedef HRESULT (WINAPI *t_DwmEnableBlurBehindWindow)(HWND hWnd, const DWM_BLURBEHIND* pBlurBehind);
-        typedef HRESULT (WINAPI *t_DwmExtendFrameIntoClientArea)(HWND hwnd, const MARGINS *pMarInset);
-    }
 
     void DwmSetIconicThumbnail(HWND hwnd, HBITMAP hbmp, DWORD dwSITFlags);
-    void DwmSetWindowAttribute(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute);
     void DwmSetIconicLivePreviewBitmap(HWND hwnd, HBITMAP hbmp, POINT *pptClient, DWORD dwSITFlags);
-    void DwmEnableBlurBehindWindow(HWND hwnd, const DWM_BLURBEHIND* pBlurBehind);
-    void DwmExtendFrameIntoClientArea(HWND hwnd, const MARGINS *pMarInset);
 
+    void InvalidateIconicBitmaps(QWidget* widget);
     void ExtendFrameIntoClientArea(QWidget* widget);
-    HRESULT EnableBlurBehindWidget(QWidget* widget, bool enable);
+    void EnableWidgetIconicPreview(QWidget* widget, bool enable);
+    long EnableBlurBehindWidget(QWidget* widget, bool enable);
 }
 
 #endif //Q_OS_WIN32

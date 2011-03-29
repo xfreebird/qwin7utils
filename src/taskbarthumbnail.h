@@ -23,6 +23,7 @@
 #include <QObject>
 #include <QPixmap>
 #include <QString>
+#include <QWidget>
 
 #ifdef Q_OS_WIN32
 #include "taskbar.h"
@@ -43,7 +44,7 @@ namespace QW7 {
         void EnableIconicPreview(bool enable);
 
     private:
-        WId m_widget_id;
+        QWidget* m_widget;
         QPixmap m_thumbnail;
 
     };

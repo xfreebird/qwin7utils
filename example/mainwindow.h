@@ -28,10 +28,6 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    bool winEventx(MSG * message, long * result) {
-        return winEvent(message, result);
-    }
-
 #ifdef Q_OS_WIN32
 protected:
     bool winEvent(MSG * message, long * result);
@@ -52,6 +48,8 @@ private slots:
     void actionpressed();
     void on_pushButton_clicked();
     void tab_activated(QWidget* widget);
+    void tab_remove(int index);
+    void tab_set_active(int index);
 };
 
 #endif // MAINWINDOW_H
