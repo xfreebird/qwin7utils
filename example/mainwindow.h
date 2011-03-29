@@ -49,6 +49,7 @@ private slots:
     void on_pushButton_clicked();
     void tab_activated(QWidget* widget);
     void tab_remove(int index);
+    void tab_remove(QWidget* widget);
     void tab_set_active(int index);
 };
 

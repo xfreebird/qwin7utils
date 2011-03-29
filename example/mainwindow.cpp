@@ -63,6 +63,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(mTabs, SIGNAL(OnTabClicked(QWidget*)), this, SLOT(tab_activated(QWidget*)));
     connect(mTabs, SIGNAL(OnTabHover(QWidget*)), this, SLOT(tab_activated(QWidget*)));
+    connect(mTabs, SIGNAL(OnTabClose(QWidget*)), this, SLOT(tab_remove(QWidget*)));
+
     connect(ui->tabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(tab_remove(int)));
     connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tab_set_active(int)));
 
@@ -161,6 +163,15 @@ void MainWindow::tab_remove(int index) {
     //widget = ui->tabWidget->currentWidget();
     //if (widget) mTabs->SetActiveTab(widget);
 
+}
+
+void MainWindow::tab_remove(QWidget* widget) {
+    for (int index = 0; index < ui->tabWidget->count(); index++) {
+        if (widget == ui->tabWidget->widget(index)) {
+            tab_remove(index);
+            break;
+        }
+    }
 }
 
 void MainWindow::tab_set_active(int index) {
