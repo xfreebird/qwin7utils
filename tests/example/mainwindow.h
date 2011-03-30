@@ -2,12 +2,12 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "../src/jumplist.h"
-#include "../src/appusermodel.h"
-#include "../src/taskbarbutton.h"
-#include "../src/taskbartoolbar.h"
-#include "../src/taskbar.h"
-#include "../src/taskbartabs.h"
+#include "../../src/jumplist.h"
+#include "../../src/appusermodel.h"
+#include "../../src/taskbarbutton.h"
+#include "../../src/taskbartoolbar.h"
+#include "../../src/taskbar.h"
+#include "../../src/taskbartabs.h"
 
 namespace Ui {
     class MainWindow;

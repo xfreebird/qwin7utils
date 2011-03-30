@@ -4,7 +4,7 @@
 #include <QIcon>
 #include <QPixmap>
 
-#include "../src/utils.h"
+#include "../../src/utils.h"
 
 using namespace QW7;
 
