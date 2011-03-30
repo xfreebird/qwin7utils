@@ -2,19 +2,12 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <windows.h>
-#include <shlobj.h>
-#include <shlwapi.h>
-#include <initguid.h>
-#include <objidl.h>
 #include "../src/jumplist.h"
 #include "../src/appusermodel.h"
 #include "../src/taskbarbutton.h"
 #include "../src/taskbartoolbar.h"
-//#include "../src/taskbarthumbnail.h"
+#include "../src/taskbar.h"
 #include "../src/taskbartabs.h"
-
-#include <QTimer>
 
 namespace Ui {
     class MainWindow;
@@ -35,13 +28,11 @@ protected:
 
 private:
     QAction* special;
-    bool toolbarcanbeused;
     Ui::MainWindow *ui;
     QMainWindow* mainwindow2;
     QW7::JumpList mJumpList;
     QW7::TaskbarButton* mTaskbar;
     QW7::TaskbarToolbar* mToolbar;
-//    QW7::TaskbarThumbnail* mThumbnail;
     QW7::TaskbarTabs* mTabs;
 
 private slots:

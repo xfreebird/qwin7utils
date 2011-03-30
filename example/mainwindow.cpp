@@ -1,14 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QDebug>
+#include <QIcon>
 #include <QPixmap>
-#include <QList>
-#include <QLineEdit>
 
 #include "../src/utils.h"
-#include "../src/jumplist.h"
-#include "../src/appusermodel.h"
-#include "../src/taskbarbutton.h"
 
 using namespace QW7;
 
@@ -23,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     EnableBlurBehindWidget(this, true);
     ExtendFrameIntoClientArea(this);
-    toolbarcanbeused = false;
+
     AppUserModel::SetCurrentProcessExplicitAppUserModelID(g_app_id);
     mTaskbar = new TaskbarButton(this);
 
@@ -81,8 +77,6 @@ bool MainWindow::winEvent(MSG * message, long * result)
 
 void MainWindow::on_pushButton_clicked()
 {
-
-    qDebug() << "we are here";
     QList<JumpListItem> task_list;
 
     QString icons_source("C:\\windows\\explorer.exe");
@@ -98,13 +92,13 @@ void MainWindow::on_pushButton_clicked()
     other_list.append(JumpListItem(app_path, "/foo 1", "Email 1", "Something", icons_source, 15, "das"));
     other_list.append(JumpListItem(app_path, "/foo 3", "Email 3", "Something else", icons_source, 15, "das"));
 
-    qDebug() << mJumpList.SetAppID(g_app_id);
-    qDebug() << mJumpList.Begin();
-    qDebug() << mJumpList.AddCategory("Starred (2)", other_list);
-    //qDebug() << mJumpList.AddFrequentCategory();
-    //qDebug() << mJumpList.AddRecentCategory();
-    qDebug() << mJumpList.AddUserTasks(task_list);
-    qDebug() << mJumpList.Commit();
+    mJumpList.SetAppID(g_app_id);
+    mJumpList.Begin();
+    mJumpList.AddCategory("Starred (2)", other_list);
+    //mJumpList.AddFrequentCategory();
+    //mJumpList.AddRecentCategory();
+    mJumpList.AddUserTasks(task_list);
+    mJumpList.Commit();
 
     mTaskbar->SetState(STATE_PAUSED);
     mTaskbar->SetProgresValue(300, 900);
