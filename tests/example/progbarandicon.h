@@ -17,48 +17,39 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef TASKBAR_H
-#define TASKBAR_H
+#ifndef PROGBARANDICON_H
+#define PROGBARANDICON_H
 
-#include <QMutex>
-#include <QObject>
-#include <QCoreApplication>
+#include <QTimer>
+#include <QMainWindow>
+#include "../../src/TaskbarButton.h"
 
-#ifdef Q_OS_WIN32
-namespace QW7 {
-
-    struct TBPrivateData;
-
-    class Taskbar : public QObject {
-
-        Q_OBJECT
-
-    private:
-        TBPrivateData* m_private;
-        unsigned int m_taskBarCreatedId;
-
-        static QMutex m_mutex;
-        static QMutex m_mutex_winevent;
-        static Taskbar* m_instance;
-
-        Taskbar(QObject* parent = NULL);
-        ~Taskbar();
-
-    public:
-
-        static Taskbar* GetInstance();
-        static void ReleaseInstance();
-
-        bool isInitialized();
-        bool winEvent(MSG* message, long* result);
-
-    signals:
-        void isReady();
-
-        friend class TaskbarTabs;
-        friend class TaskbarButton;
-        friend class TaskbarToolbar;
-    };
+namespace Ui {
+    class ProgBarAndIcon;
 }
-#endif // Q_OS_WIN32
-#endif // TASKBAR_H
+
+class ProgBarAndIcon : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    explicit ProgBarAndIcon(QWidget *parent = 0);
+    ~ProgBarAndIcon();
+
+protected:
+    bool winEvent(MSG * message, long * result);
+
+private:
+    int mProgressValue;
+    QTimer mTimer;
+    Ui::ProgBarAndIcon *ui;
+    QW7::TaskbarButton* mTaskbarButton;
+
+private slots:
+    void OnTaskbarReady();
+    void OnOverlayIconChanged();
+    void OnProgressTypeChanged();
+    void OnUpdateProgressValue();
+};
+
+#endif // PROGBARANDICON_H

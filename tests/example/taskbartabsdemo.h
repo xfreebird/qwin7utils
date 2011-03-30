@@ -17,48 +17,35 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef TASKBAR_H
-#define TASKBAR_H
+#ifndef TASKBARTABSDEMO_H
+#define TASKBARTABSDEMO_H
 
-#include <QMutex>
-#include <QObject>
-#include <QCoreApplication>
+#include <QMainWindow>
 
-#ifdef Q_OS_WIN32
-namespace QW7 {
+#include "../../src/TaskbarTabs.h"
 
-    struct TBPrivateData;
-
-    class Taskbar : public QObject {
-
-        Q_OBJECT
-
-    private:
-        TBPrivateData* m_private;
-        unsigned int m_taskBarCreatedId;
-
-        static QMutex m_mutex;
-        static QMutex m_mutex_winevent;
-        static Taskbar* m_instance;
-
-        Taskbar(QObject* parent = NULL);
-        ~Taskbar();
-
-    public:
-
-        static Taskbar* GetInstance();
-        static void ReleaseInstance();
-
-        bool isInitialized();
-        bool winEvent(MSG* message, long* result);
-
-    signals:
-        void isReady();
-
-        friend class TaskbarTabs;
-        friend class TaskbarButton;
-        friend class TaskbarToolbar;
-    };
+namespace Ui {
+    class TaskbarTabsDemo;
 }
-#endif // Q_OS_WIN32
-#endif // TASKBAR_H
+
+class TaskbarTabsDemo : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    explicit TaskbarTabsDemo(QWidget *parent = 0);
+    ~TaskbarTabsDemo();
+
+protected:
+    bool winEvent(MSG * message, long * result);
+
+private:
+    Ui::TaskbarTabsDemo *ui;
+    QW7::TaskbarTabs* mTaskbarTabs;
+
+private slots:
+    void OnTaskbarReady();
+
+};
+
+#endif // TASKBARTABSDEMO_H

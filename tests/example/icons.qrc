@@ -1,11 +1,15 @@
 <RCC>
     <qresource prefix="/">
-        <file>exclamation.ico</file>
         <file>next.png</file>
         <file>pause.png</file>
         <file>play.png</file>
         <file>prev.png</file>
-        <file>play2.png</file>
         <file alias="logo.png">Qt-logo.png</file>
+        <file>cover.png</file>
+        <file>bethoven.png</file>
+        <file>add.png</file>
+        <file>feed.png</file>
+        <file>flag.png</file>
+        <file>home.png</file>
     </qresource>
 </RCC>

@@ -17,48 +17,44 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef TASKBAR_H
-#define TASKBAR_H
+#ifndef TOOLBARDEMO_H
+#define TOOLBARDEMO_H
 
-#include <QMutex>
-#include <QObject>
-#include <QCoreApplication>
+#include <QMainWindow>
 
-#ifdef Q_OS_WIN32
-namespace QW7 {
+#include "../../src/TaskbarToolbar.h"
 
-    struct TBPrivateData;
-
-    class Taskbar : public QObject {
-
-        Q_OBJECT
-
-    private:
-        TBPrivateData* m_private;
-        unsigned int m_taskBarCreatedId;
-
-        static QMutex m_mutex;
-        static QMutex m_mutex_winevent;
-        static Taskbar* m_instance;
-
-        Taskbar(QObject* parent = NULL);
-        ~Taskbar();
-
-    public:
-
-        static Taskbar* GetInstance();
-        static void ReleaseInstance();
-
-        bool isInitialized();
-        bool winEvent(MSG* message, long* result);
-
-    signals:
-        void isReady();
-
-        friend class TaskbarTabs;
-        friend class TaskbarButton;
-        friend class TaskbarToolbar;
-    };
+namespace Ui {
+    class ToolbarDemo;
 }
-#endif // Q_OS_WIN32
-#endif // TASKBAR_H
+
+class ToolbarDemo : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    explicit ToolbarDemo(QWidget *parent = 0);
+    ~ToolbarDemo();
+
+protected:
+    bool winEvent(MSG * message, long * result);
+
+private:
+    int mImageIndex;
+    QAction* mPlayPauseAction;
+    QAction* mPrevAction;
+    QAction* mNextAction;
+
+    Ui::ToolbarDemo *ui;
+    QW7::TaskbarToolbar* mToolbar;
+
+    void SetImage();
+
+private slots:
+    void OnTaskbarReady();
+    void OnPrevAction();
+    void OnPlayPauseAction();
+    void OnNextAction();
+};
+
+#endif // TOOLBARDEMO_H

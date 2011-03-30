@@ -10,15 +10,24 @@ TARGET = example
 TEMPLATE = app
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    toolbardemo.cpp \
+    progbarandicon.cpp \
+    taskbartabsdemo.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    toolbardemo.h \
+    progbarandicon.h \
+    taskbartabsdemo.h
 HEADERS += ../../src/Taskbar.h \
     ../../src/TaskbarButton.h \
     ../../src/TaskbarToolbar.h \
     ../../src/TaskbarTabs.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    toolbardemo.ui \
+    progbarandicon.ui \
+    taskbartabsdemo.ui
 
 win32:RC_FILE  = example.rc
 
@@ -32,3 +41,7 @@ LIBS += libqwin7utils libuser32 libole32 libshell32 libshlwapi libcomctl32 libgd
 
 RESOURCES += \
     icons.qrc
+
+unix {
+     error( "Windows only code !!!" )
+}

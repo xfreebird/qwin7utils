@@ -17,48 +17,42 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef TASKBAR_H
-#define TASKBAR_H
+#include "taskbartabsdemo.h"
+#include "ui_taskbartabsdemo.h"
 
-#include <QMutex>
-#include <QObject>
-#include <QCoreApplication>
+#include "../../src/Utils.h"
+#include "../../src/Taskbar.h"
 
-#ifdef Q_OS_WIN32
-namespace QW7 {
+#include <QDebug>
 
-    struct TBPrivateData;
+using namespace QW7;
+TaskbarTabsDemo::TaskbarTabsDemo(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::TaskbarTabsDemo)
+{
+    ui->setupUi(this);
 
-    class Taskbar : public QObject {
+    mTaskbarTabs = TaskbarTabs::GetInstance();
+    mTaskbarTabs->SetParentWidget(this);
 
-        Q_OBJECT
-
-    private:
-        TBPrivateData* m_private;
-        unsigned int m_taskBarCreatedId;
-
-        static QMutex m_mutex;
-        static QMutex m_mutex_winevent;
-        static Taskbar* m_instance;
-
-        Taskbar(QObject* parent = NULL);
-        ~Taskbar();
-
-    public:
-
-        static Taskbar* GetInstance();
-        static void ReleaseInstance();
-
-        bool isInitialized();
-        bool winEvent(MSG* message, long* result);
-
-    signals:
-        void isReady();
-
-        friend class TaskbarTabs;
-        friend class TaskbarButton;
-        friend class TaskbarToolbar;
-    };
+    connect(Taskbar::GetInstance(), SIGNAL(isReady()), this, SLOT(OnTaskbarReady()));
 }
-#endif // Q_OS_WIN32
-#endif // TASKBAR_H
+
+bool TaskbarTabsDemo::winEvent(MSG * message, long * result) {
+    //init taskbar
+    Taskbar::GetInstance()->winEvent(message, result);
+
+    return false;
+}
+
+void TaskbarTabsDemo::OnTaskbarReady() {
+    mTaskbarTabs->AddTab(ui->tabWidget->widget(0), QString("Tab 1"), QIcon(":/home.png"));
+    mTaskbarTabs->AddTab(ui->tabWidget->widget(1), QString("Tab 2"), QIcon(":/flag.png"));
+    mTaskbarTabs->AddTab(ui->tabWidget->widget(2), QString("Custom thumbnail"), QIcon(":/feed.png"), QPixmap(":/logo.png"));
+    mTaskbarTabs->SetActiveTab(ui->tabWidget->widget(0));
+}
+
+TaskbarTabsDemo::~TaskbarTabsDemo()
+{
+    delete ui;
+}

@@ -62,6 +62,14 @@ namespace QW7 {
     }
 
 
+    bool Taskbar::isInitialized() {
+        if (m_private != NULL) {
+            return (m_private->GetHandler() != NULL);
+        } else {
+            return false;
+        }
+    }
+
     bool Taskbar::winEvent(MSG* message, long* result) {
         if (m_taskBarCreatedId == WM_NULL) {
             m_taskBarCreatedId = RegisterWindowMessage(L"TaskbarButtonCreated");
