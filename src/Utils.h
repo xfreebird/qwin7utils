@@ -25,8 +25,6 @@
 #ifdef Q_OS_WIN32
 #include <windows.h>
 
-#define DWM_BB_ENABLE                 0x00000001  // fEnable has been specified
-
 namespace QW7 {
 
     void DwmSetIconicThumbnail(HWND hwnd, HBITMAP hbmp, DWORD dwSITFlags);

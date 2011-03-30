@@ -27,8 +27,6 @@
 #include <QPixmap>
 #include <QWidget>
 
-#include "taskbar.h"
-
 #ifdef Q_OS_WIN32
 namespace QW7 {
 

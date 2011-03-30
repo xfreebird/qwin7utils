@@ -23,8 +23,8 @@
 #include <QBitmap>
 #include <QPixmap>
 
-#include "taskbar.h"
-#include "tbprivatedata.h"
+#include "Taskbar.h"
+#include "TBPrivateData.h"
 
 #define IDTB_FIRST 3000
 

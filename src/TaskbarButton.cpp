@@ -21,11 +21,11 @@
 #include <QPixmap>
 #include <QPainter>
 
-#include "taskbarbutton.h"
+#include "TaskbarButton.h"
 
 #ifdef Q_OS_WIN32
-#include "taskbar.h"
-#include "tbprivatedata.h"
+#include "Taskbar.h"
+#include "TBPrivateData.h"
 
 namespace QW7 {
 

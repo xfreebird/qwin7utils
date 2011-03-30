@@ -17,8 +17,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "utils.h"
+#include "Utils.h"
 namespace QW7 {
+
+#define DWM_BB_ENABLE                 0x00000001  // fEnable has been specified
 
     typedef struct _DWM_BLURBEHIND
     {

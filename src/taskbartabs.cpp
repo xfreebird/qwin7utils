@@ -20,9 +20,9 @@
 #include "taskbartabs.h"
 
 #ifdef Q_OS_WIN32
-#include "utils.h"
-#include "taskbar.h"
-#include "tbprivatedata.h"
+#include "Utils.h"
+#include "Taskbar.h"
+#include "TBPrivateData.h"
 
 namespace QW7 {
 
