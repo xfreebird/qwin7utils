@@ -3,4 +3,4 @@ qwin7utils-build-desktop/
 libin/
 qwin7utils-build-simulator/
 src/*.pro.user
-example/*.pro.user
+*.pro.user
