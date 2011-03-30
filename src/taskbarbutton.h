@@ -20,11 +20,12 @@
 #ifndef TASKBARBUTTON_H
 #define TASKBARBUTTON_H
 
+#include <QList>
 #include <QIcon>
 #include <QString>
 #include <QWidget>
-#include <QList>
 #include <QPixmap>
+#include <QWidget>
 
 #include "taskbar.h"
 
@@ -41,17 +42,17 @@ namespace QW7 {
 
     struct TBPrivateData;
 
-    class TaskbarButton : public Taskbar {
+    class TaskbarButton : public QObject {
 
         Q_OBJECT
     private:
-        WId m_widget_id;
+        QWidget* m_widget;
 
     public:
-        explicit TaskbarButton(QObject* parent);
+        explicit TaskbarButton(QWidget* parent);
 
     public slots:
-        void SetWindow(QObject* window);
+        void SetWindow(QWidget* window);
         long SetOverlayIcon(const QIcon& icon, QString description);
 
         long SetState(ProgressBarState state);

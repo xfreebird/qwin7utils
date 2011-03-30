@@ -10,13 +10,6 @@
 #include "../src/appusermodel.h"
 #include "../src/taskbarbutton.h"
 
-/*
-#define WM_DWMSENDICONICTHUMBNAIL         0x0323
-#define WM_DWMSENDICONICLIVEPREVIEWBITMAP 0x0326
-
-
-#include <windows.h>
-*/
 using namespace QW7;
 
 QString g_app_id("WindowsQt");
@@ -47,19 +40,16 @@ MainWindow::MainWindow(QWidget *parent) :
     action->setData(QVariant("true"));
     mToolbar->AddAction(action);
 
-    connect(mTaskbar, SIGNAL(isReady()), this, SLOT(on_pushButton_clicked()));
+    mTabs = TaskbarTabs::GetInstance();
+    mTabs->SetParentWidget(this);
+
+    connect(Taskbar::GetInstance(), SIGNAL(isReady()), this, SLOT(on_pushButton_clicked()));
 
     connect(special, SIGNAL(triggered()), this, SLOT(actionpressed()));
 
 
     QIcon icon = QApplication::style()->standardIcon(QStyle::SP_VistaShield);
     ui->pushButton->setIcon(icon);
-
-    mThumbnail = new TaskbarThumbnail(this);
-    mThumbnail->SetThumbnail(QPixmap(":/logo.png"));
-
-    mTabs = TaskbarTabs::GetInstance();
-    mTabs->SetParentWidget(this);
 
     connect(mTabs, SIGNAL(OnTabClicked(QWidget*)), this, SLOT(tab_activated(QWidget*)));
     connect(mTabs, SIGNAL(OnTabHover(QWidget*)), this, SLOT(tab_activated(QWidget*)));
@@ -73,6 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     TaskbarTabs::ReleaseInstance();
+    Taskbar::ReleaseInstance();
     delete ui;
 }
 
@@ -80,9 +71,8 @@ MainWindow::~MainWindow()
 bool MainWindow::winEvent(MSG * message, long * result)
 {
 
-    mTaskbar->winEvent(message, result);
+    Taskbar::GetInstance()->winEvent(message, result);
     mToolbar->winEvent(message, result);
-    mThumbnail->winEvent(message, result);
 
     return false;
 }
@@ -92,6 +82,7 @@ bool MainWindow::winEvent(MSG * message, long * result)
 void MainWindow::on_pushButton_clicked()
 {
 
+    qDebug() << "we are here";
     QList<JumpListItem> task_list;
 
     QString icons_source("C:\\windows\\explorer.exe");
@@ -118,15 +109,13 @@ void MainWindow::on_pushButton_clicked()
     mTaskbar->SetState(STATE_PAUSED);
     mTaskbar->SetProgresValue(300, 900);
 
-    //mThumbnail->EnableIconicPreview(true);
-    //mThumbnail->SetThumbnailTooltip("Hello World !!!");
-
-
     ui->tabWidget->widget(1)->setWindowIcon(QIcon(":/pause.png"));
     mTabs->AddTab(ui->tabWidget->widget(0), QString("Tab 1"), QIcon(":/play.png"));
     mTabs->AddTab(ui->tabWidget->widget(1), QString("Tab 2"));
     mTabs->AddTab(ui->tabWidget->widget(2), QString("Tab 3"), QPixmap(":/logo.png"));
-    mTabs->SetActiveTab(ui->tabWidget->widget(0));
+    mTabs->SetActiveTab(ui->tabWidget->widget(2));
+    mToolbar->SetThumbnailClip(QRect(0, 0, 200, 200));
+    mToolbar->SetThumbnailTooltip("Thumbnail  tooltip.");
     mToolbar->Show();
 }
 
@@ -137,10 +126,6 @@ void MainWindow::actionpressed() {
     special->setIcon(value ? QIcon(":/pause.png") : QIcon(":/play.png"));
     special->setText(value ? "Pause" : "Play");
     value = !value;
-
-    mThumbnail->EnableIconicPreview(false);
-
-
 }
 
 void MainWindow::tab_activated(QWidget* widget) {

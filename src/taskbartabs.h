@@ -22,15 +22,16 @@
 
 #include <QList>
 #include <QIcon>
+#include <QString>
+#include <QPixmap>
 #include <QWidget>
-
+#include <QCoreApplication>
 
 #ifdef Q_OS_WIN32
-#include "taskbar.h"
 
 namespace QW7 {
 
-    class TaskbarTabs : public Taskbar
+    class TaskbarTabs : public QObject
     {
         Q_OBJECT
     public:

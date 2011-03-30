@@ -11,7 +11,7 @@
 #include "../src/appusermodel.h"
 #include "../src/taskbarbutton.h"
 #include "../src/taskbartoolbar.h"
-#include "../src/taskbarthumbnail.h"
+//#include "../src/taskbarthumbnail.h"
 #include "../src/taskbartabs.h"
 
 #include <QTimer>
@@ -41,7 +41,7 @@ private:
     QW7::JumpList mJumpList;
     QW7::TaskbarButton* mTaskbar;
     QW7::TaskbarToolbar* mToolbar;
-    QW7::TaskbarThumbnail* mThumbnail;
+//    QW7::TaskbarThumbnail* mThumbnail;
     QW7::TaskbarTabs* mTabs;
 
 private slots:

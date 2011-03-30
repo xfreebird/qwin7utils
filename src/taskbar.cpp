@@ -20,23 +20,45 @@
 #include "taskbar.h"
 
 #ifdef Q_OS_WIN32
-#include <QMutex>
 #include <QMutexLocker>
 #include "tbprivatedata.h"
-#include "win7_include.h"
 
 namespace QW7 {
 
     QMutex Taskbar::m_mutex;
-    int Taskbar::m_instanceCounter = 0;
-    TBPrivateData* Taskbar::m_private = NULL;
+    QMutex Taskbar::m_mutex_winevent;
+
+    Taskbar* Taskbar::m_instance = NULL;
 
 
     Taskbar::Taskbar(QObject* parent) : QObject(parent) {
+        m_private = NULL;
+        m_taskBarCreatedId = WM_NULL;
+    }
+
+    Taskbar* Taskbar::GetInstance() {
         QMutexLocker locker(&m_mutex);
 
-        m_instanceCounter++;
-        m_taskBarCreatedId = WM_NULL;
+        if (m_instance == NULL) {
+            m_instance = new Taskbar();
+        }
+
+        return m_instance;
+    }
+
+    Taskbar::~Taskbar() {
+        if (m_private) {
+            delete m_private;
+            m_private = NULL;
+        }
+    }
+
+    void Taskbar::ReleaseInstance() {
+        QMutexLocker locker(&m_mutex);
+
+        if (m_instance != NULL) {
+            delete m_instance;
+        }
     }
 
 
@@ -46,7 +68,7 @@ namespace QW7 {
         }
 
         if (message->message == m_taskBarCreatedId) {
-            QMutexLocker locker(&m_mutex);
+            QMutexLocker locker(&m_mutex_winevent);
 
             if (!m_private) {
                 m_private = new TBPrivateData();
@@ -59,20 +81,7 @@ namespace QW7 {
 
         }
 
-        return qApp->winEventFilter(message, result);
-    }
-
-    Taskbar::~Taskbar() {
-        QMutexLocker locker(&m_mutex);
-
-        m_instanceCounter--;
-
-        if (m_instanceCounter == 0) {
-            if (m_private) {
-                delete m_private;
-                m_private = NULL;
-            }
-        }
+        return false;
     }
 }
 

@@ -30,7 +30,7 @@
 
 namespace QW7 {
 
-    class TaskbarThumbnail : public Taskbar
+    class TaskbarThumbnail : public QObject
     {
         Q_OBJECT
     public:

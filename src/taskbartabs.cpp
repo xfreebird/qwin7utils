@@ -20,13 +20,8 @@
 #include "taskbartabs.h"
 
 #ifdef Q_OS_WIN32
-#include <QWidget>
-#include <QDebug>
-#include <QPixmap>
-#include <QMainWindow>
-
 #include "utils.h"
-#include "win7_include.h"
+#include "taskbar.h"
 #include "tbprivatedata.h"
 
 namespace QW7 {
@@ -34,7 +29,7 @@ namespace QW7 {
     TaskbarTabs* TaskbarTabs::m_instance = NULL;
     QCoreApplication::EventFilter TaskbarTabs::m_oldEventFilter = NULL;
 
-    TaskbarTabs::TaskbarTabs() : Taskbar() {
+    TaskbarTabs::TaskbarTabs(){
     }
 
     TaskbarTabs::~TaskbarTabs() {
@@ -95,9 +90,9 @@ namespace QW7 {
         m_tabs.append(tab);
         EnableWidgetIconicPreview(tab->m_tab_widget, true);
 
-        m_private->GetHandler()->RegisterTab(tab->m_tab_widget->winId(), m_parentWidget->winId());
-        m_private->GetHandler()->SetTabOrder(tab->m_tab_widget->winId(), NULL);
-        m_private->GetHandler()->SetTabActive(NULL, m_tabs.back()->m_tab_widget->winId(), 0);
+        Taskbar::GetInstance()->m_private->GetHandler()->RegisterTab(tab->m_tab_widget->winId(), m_parentWidget->winId());
+        Taskbar::GetInstance()->m_private->GetHandler()->SetTabOrder(tab->m_tab_widget->winId(), NULL);
+        Taskbar::GetInstance()->m_private->GetHandler()->SetTabActive(NULL, m_tabs.back()->m_tab_widget->winId(), 0);
     }
 
     void TaskbarTabs::UpdateTab(QWidget* widget, QString title) {
@@ -130,7 +125,7 @@ namespace QW7 {
 
         if (tab == NULL) return;
 
-         m_private->GetHandler()->SetTabActive(tab->m_tab_widget->winId(), m_parentWidget->winId(), 0);
+         Taskbar::GetInstance()->m_private->GetHandler()->SetTabActive(tab->m_tab_widget->winId(), m_parentWidget->winId(), 0);
     }
 
     void TaskbarTabs::RemoveTab(QWidget* widget) {
@@ -138,7 +133,7 @@ namespace QW7 {
 
         if (tab == NULL) return;
 
-        m_private->GetHandler()->UnregisterTab(tab->m_tab_widget->winId());
+        Taskbar::GetInstance()->m_private->GetHandler()->UnregisterTab(tab->m_tab_widget->winId());
 
         m_tabs.removeOne(tab);
         delete tab->m_tab_widget;
@@ -151,7 +146,7 @@ namespace QW7 {
 
          if (tab1 == NULL || tab2 == NULL) return;
 
-         m_private->GetHandler()->SetTabOrder(tab1->m_tab_widget->winId(), tab2->m_tab_widget->winId());
+         Taskbar::GetInstance()->m_private->GetHandler()->SetTabOrder(tab1->m_tab_widget->winId(), tab2->m_tab_widget->winId());
     }
 
     void TaskbarTabs::InvalidateTabThumbnail(QWidget* widget) {

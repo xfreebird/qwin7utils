@@ -22,26 +22,35 @@
 #ifdef Q_OS_WIN32
 #include <QBitmap>
 #include <QPixmap>
-#include <QString>
 
-#include "win7_include.h"
+#include "taskbar.h"
 #include "tbprivatedata.h"
 
 #define IDTB_FIRST 3000
 
 namespace QW7 {
 
-    TaskbarToolbar::TaskbarToolbar(QObject *parent) :
-            Taskbar(parent)
+    TaskbarToolbar::TaskbarToolbar(QWidget *parent) :
+            QObject(parent)
     {
         m_initialized = false;
-        SetWindow(parent);
+        SetWidget(parent);
     }
 
-    void TaskbarToolbar::SetWindow(QObject* window) {
-        m_widget_id = dynamic_cast<QWidget*>(window)->winId();
+    void TaskbarToolbar::SetWidget(QWidget* widget) {
+        m_widget = widget;
     }
 
+    void TaskbarToolbar::SetThumbnailClip(QRect rect) {
+        RECT wrect;
+        wrect.left = rect.left(); wrect.right = rect.right();
+        wrect.top = rect.top(); wrect.bottom = rect.bottom();
+        Taskbar::GetInstance()->m_private->GetHandler()->SetThumbnailClip(m_widget->winId(), &wrect);
+    }
+
+    void TaskbarToolbar::SetThumbnailTooltip(QString tooltip) {
+        Taskbar::GetInstance()->m_private->GetHandler()->SetThumbnailTooltip(m_widget->winId(), tooltip.toStdWString().c_str());
+    }
 
     void TaskbarToolbar::AddAction(QAction* action) {
         if (m_initialized) return;
@@ -108,13 +117,13 @@ namespace QW7 {
             ++index;
         }
 
-        HRESULT hr = m_private->GetHandler()->ThumbBarSetImageList(m_widget_id, himl);
+        HRESULT hr = Taskbar::GetInstance()->m_private->GetHandler()->ThumbBarSetImageList(m_widget->winId(), himl);
 
         if (S_OK == hr) {
             if (!m_initialized) {
-                m_private->GetHandler()->ThumbBarAddButtons(m_widget_id, m_actions.size(), thbButtons);
+                Taskbar::GetInstance()->m_private->GetHandler()->ThumbBarAddButtons(m_widget->winId(), m_actions.size(), thbButtons);
             } else {
-                m_private->GetHandler()->ThumbBarUpdateButtons(m_widget_id, m_actions.size(), thbButtons);
+                Taskbar::GetInstance()->m_private->GetHandler()->ThumbBarUpdateButtons(m_widget->winId(), m_actions.size(), thbButtons);
             }
         }
 
@@ -144,7 +153,7 @@ namespace QW7 {
             }
         }
 
-        return Taskbar::winEvent(message, result);
+        return false;
     }
 
 

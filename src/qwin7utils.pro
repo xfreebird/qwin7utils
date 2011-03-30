@@ -10,25 +10,23 @@ TARGET = qwin7utils
 TEMPLATE = lib
 CONFIG += staticlib
 
-SOURCES += appusermodel.cpp \
-           jumplist.cpp \
-    taskbarbutton.cpp \
-    taskbar.cpp \
-    taskbartoolbar.cpp \
-    taskbarthumbnail.cpp \
-    utils.cpp \
-    taskbartabs.cpp
+SOURCES += AppUserModel.cpp \
+           JumpList.cpp \
+    TaskbarButton.cpp \
+    Taskbar.cpp \
+    TaskbarToolbar.cpp \
+    Utils.cpp \
+    TaskbarTabs.cpp
 
-HEADERS += appusermodel.h \
-           jumplist.h \
+HEADERS += AppUserModel.h \
+           JumpList.h \
            win7_include.h \
-    taskbarbutton.h \
-    taskbar.h \
-    taskbartoolbar.h \
-    taskbarthumbnail.h \
-    tbprivatedata.h \
-    jlprivatedata.h \
-    utils.h \
-    taskbartabs.h
+    TaskbarButton.h \
+    Taskbar.h \
+    TaskbarToolbar.h \
+    TBPrivateData.h \
+    JLPrivateData.h \
+    Utils.h \
+    TaskbarTabs.h
 
 #LIBS += libuser32 libole32 libshell32 libshlwapi

@@ -24,23 +24,23 @@
 #include "taskbarbutton.h"
 
 #ifdef Q_OS_WIN32
-#include "win7_include.h"
+#include "taskbar.h"
 #include "tbprivatedata.h"
-#include <QAction>
+
 namespace QW7 {
 
-    TaskbarButton::TaskbarButton(QObject* parent) : Taskbar(parent) {
+    TaskbarButton::TaskbarButton(QWidget* parent) : QObject(parent) {
         SetWindow(parent);
     }
 
-    void TaskbarButton::SetWindow(QObject* window) {
-        m_widget_id = dynamic_cast<QWidget*>(window)->winId();
+    void TaskbarButton::SetWindow(QWidget* window) {
+        m_widget = window;
     }
 
     long TaskbarButton::SetOverlayIcon(const QIcon& icon, QString description) {
-        if (m_private) {
+        if (Taskbar::GetInstance()->m_private) {
             HICON overlay_icon = icon.isNull() ? NULL : icon.pixmap(48).toWinHICON();
-            long result = m_private->GetHandler()->SetOverlayIcon(m_widget_id, overlay_icon, description.toStdWString().c_str());
+            long result = Taskbar::GetInstance()->m_private->GetHandler()->SetOverlayIcon(m_widget->winId(), overlay_icon, description.toStdWString().c_str());
 
             if (overlay_icon) {
                 DestroyIcon(overlay_icon);
@@ -52,16 +52,16 @@ namespace QW7 {
     }
 
     long TaskbarButton::SetState(ProgressBarState state) {
-        if (m_private) {
-            return m_private->GetHandler()->SetProgressState(m_widget_id, (TBPFLAG)state);
+        if (Taskbar::GetInstance()->m_private) {
+            return Taskbar::GetInstance()->m_private->GetHandler()->SetProgressState(m_widget->winId(), (TBPFLAG)state);
         }
 
         return -1;
     }
 
     long TaskbarButton::SetProgresValue(unsigned long long done, unsigned long long total) {
-        if (m_private) {
-            return m_private->GetHandler()->SetProgressValue(m_widget_id, done, total);
+        if (Taskbar::GetInstance()->m_private) {
+            return Taskbar::GetInstance()->m_private->GetHandler()->SetProgressValue(m_widget->winId(), done, total);
         }
 
         return -1;

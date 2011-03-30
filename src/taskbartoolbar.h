@@ -20,32 +20,36 @@
 #ifndef TASKBARTOOLBAR_H
 #define TASKBARTOOLBAR_H
 
+#include <QRect>
 #include <QList>
 #include <QAction>
 #include <QObject>
-
+#include <QString>
+#include <QWidget>
+#include <QCoreApplication>
 
 #ifdef Q_OS_WIN32
-#include "taskbar.h"
 
 namespace QW7 {
 
-    class TaskbarToolbar : public Taskbar
+    class TaskbarToolbar : public QObject
     {
         Q_OBJECT
     public:
-        explicit TaskbarToolbar(QObject *parent = 0);
+        explicit TaskbarToolbar(QWidget *parent = 0);
         void AddAction(QAction* action);
         void AddActions(QList<QAction*>& actions);
         void Show();
         bool winEvent(MSG* message, long* result);
-        void SetWindow(QObject* window);
+        void SetWidget(QWidget* widget);
+        void SetThumbnailClip(QRect rect);
+        void SetThumbnailTooltip(QString tooltip);
 
         ~TaskbarToolbar();
 
     private:
         bool m_initialized;
-        WId m_widget_id;
+        QWidget* m_widget;
         QList<QAction*> m_actions;
         void RemoveActions();
 

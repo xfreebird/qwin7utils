@@ -20,9 +20,9 @@
 #ifndef TASKBAR_H
 #define TASKBAR_H
 
-#include <QApplication>
 #include <QMutex>
-
+#include <QObject>
+#include <QCoreApplication>
 
 #ifdef Q_OS_WIN32
 namespace QW7 {
@@ -34,21 +34,29 @@ namespace QW7 {
         Q_OBJECT
 
     private:
+        TBPrivateData* m_private;
         unsigned int m_taskBarCreatedId;
 
-    protected:
         static QMutex m_mutex;
-        static int m_instanceCounter;
-        static TBPrivateData* m_private;
+        static QMutex m_mutex_winevent;
+        static Taskbar* m_instance;
+
+        Taskbar(QObject* parent = NULL);
+        ~Taskbar();
 
     public:
-        Taskbar(QObject* parent = NULL);
+
+        static Taskbar* GetInstance();
+        static void ReleaseInstance();
+
         bool winEvent(MSG* message, long* result);
-        virtual ~Taskbar();
 
     signals:
         void isReady();
 
+        friend class TaskbarTabs;
+        friend class TaskbarButton;
+        friend class TaskbarToolbar;
     };
 }
 #endif // Q_OS_WIN32

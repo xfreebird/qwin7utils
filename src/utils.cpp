@@ -18,7 +18,6 @@
  ***************************************************************************/
 
 #include "utils.h"
-#include <QDebug>
 namespace QW7 {
 
     typedef struct _DWM_BLURBEHIND

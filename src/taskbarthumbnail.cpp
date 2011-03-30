@@ -25,10 +25,11 @@
 #include "utils.h"
 #include "win7_include.h"
 #include "tbprivatedata.h"
+#include "taskbar.h"
 
 namespace QW7 {
 
-    TaskbarThumbnail::TaskbarThumbnail(QObject *parent) : Taskbar(parent) {
+    TaskbarThumbnail::TaskbarThumbnail(QObject *parent) : QObject(parent) {
         SetWindow(parent);
     }
 
@@ -45,8 +46,8 @@ namespace QW7 {
     }
 
     void TaskbarThumbnail::SetThumbnailTooltip(QString tooltip) {
-        if (m_private) {
-            m_private->GetHandler()->SetThumbnailTooltip(m_widget->winId(), tooltip.toStdWString().c_str());
+        if (Taskbar::GetInstance()->m_private) {
+            Taskbar::GetInstance()->m_private->GetHandler()->SetThumbnailTooltip(m_widget->winId(), tooltip.toStdWString().c_str());
         }
     }
 
@@ -75,7 +76,7 @@ namespace QW7 {
 
         }
 
-        return Taskbar::winEvent(message, result);
+        return false;//Taskbar::winEvent(message, result);
     }
 
 
