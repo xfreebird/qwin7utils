@@ -36,9 +36,11 @@ ToolbarDemo::ToolbarDemo(QWidget *parent) :
 
     setFixedSize(size());
 
+#ifdef TRANSPARENT_WIDGET
     //set window transparent
     EnableBlurBehindWidget(this, true);
     ExtendFrameIntoClientArea(this);
+#endif //TRANSPARENT_WIDGET
 
     mToolbar = new TaskbarToolbar(this);
 

@@ -45,6 +45,11 @@ private:
 
 private slots:
     void OnTaskbarReady();
+    void OnTabActivate(int index);
+    void OnTabRemove(int index);
+    void OnTabActivate(QWidget* widget);
+    void OnTabRemove(QWidget* widget);
+    void OnTabAdd();
 
 };
 

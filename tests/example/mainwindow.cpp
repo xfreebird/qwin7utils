@@ -4,7 +4,8 @@
 #include <QIcon>
 #include <QPixmap>
 
-#include "../../src/utils.h"
+#include "../../src/Utils.h"
+#include "../../src/AppUserModel.h"
 
 using namespace QW7;
 
@@ -17,63 +18,25 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
+#ifdef TRANSPARENT_WIDGET
+    //set window transparent
     EnableBlurBehindWidget(this, true);
     ExtendFrameIntoClientArea(this);
+#endif //TRANSPARENT_WIDGET
 
     AppUserModel::SetCurrentProcessExplicitAppUserModelID(g_app_id);
-    mTaskbar = new TaskbarButton(this);
-
-    mToolbar = new TaskbarToolbar(this);
-
-    QAction* action = new QAction(QIcon(":/prev.png"), "Prev", this);
-    mToolbar->AddAction(action);
-
-    action = new QAction(QIcon(":/play.png"), "Play", this);
-    mToolbar->AddAction(action);
-    special = action;
-
-    action = new QAction(QIcon(":/next.png"), "Next", this);
-    action->setData(QVariant("true"));
-    mToolbar->AddAction(action);
-
-    mTabs = TaskbarTabs::GetInstance();
-    mTabs->SetParentWidget(this);
-
-    connect(Taskbar::GetInstance(), SIGNAL(isReady()), this, SLOT(on_pushButton_clicked()));
-
-    connect(special, SIGNAL(triggered()), this, SLOT(actionpressed()));
-
 
     QIcon icon = QApplication::style()->standardIcon(QStyle::SP_VistaShield);
     ui->pushButton->setIcon(icon);
 
-    connect(mTabs, SIGNAL(OnTabClicked(QWidget*)), this, SLOT(tab_activated(QWidget*)));
-    connect(mTabs, SIGNAL(OnTabHover(QWidget*)), this, SLOT(tab_activated(QWidget*)));
-    connect(mTabs, SIGNAL(OnTabClose(QWidget*)), this, SLOT(tab_remove(QWidget*)));
-
-    connect(ui->tabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(tab_remove(int)));
-    connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tab_set_active(int)));
+    connect(ui->pushButton, SIGNAL(clicked()), this, SLOT(on_pushButton_clicked()));
 
 }
 
 MainWindow::~MainWindow()
 {
-    TaskbarTabs::ReleaseInstance();
-    Taskbar::ReleaseInstance();
     delete ui;
 }
-
-#ifdef Q_OS_WIN32
-bool MainWindow::winEvent(MSG * message, long * result)
-{
-
-    Taskbar::GetInstance()->winEvent(message, result);
-    mToolbar->winEvent(message, result);
-
-    return false;
-}
-
-#endif //Q_OS_WIN32
 
 void MainWindow::on_pushButton_clicked()
 {
@@ -81,79 +44,26 @@ void MainWindow::on_pushButton_clicked()
 
     QString icons_source("C:\\windows\\explorer.exe");
     QString app_path = qApp->applicationFilePath();
+    QString app_dir_path = qApp->applicationDirPath();
 
-    task_list.append(JumpListItem(app_path, "/tfoo 1", "Task 1", "Task 1 How To", icons_source, 2, "sd"));
-    task_list.append(JumpListItem(app_path, "/tfoo 2", "Task 2", "Task 2 How To", icons_source, 10, "asd"));
+    task_list.append(JumpListItem(app_path, "/arg 1", "Task 1", "Task 1 How To", icons_source, 2, app_dir_path));
+    task_list.append(JumpListItem(app_path, "/arg 2", "Task 2", "Task 2 How To", icons_source, 10, app_dir_path));
     task_list.append(JumpListItem());
-    task_list.append(JumpListItem(app_path, "/tfoo 3", "Task 3", "Task 3 How To", icons_source, 21, "das"));
+    task_list.append(JumpListItem(app_path, "/arg 3", "Task 3", "Task 3 How To", icons_source, 21, app_dir_path));
 
     QList<JumpListItem> other_list;
-    other_list.append(JumpListItem("C:\\file.mmm"));
-    other_list.append(JumpListItem(app_path, "/foo 1", "Email 1", "Something", icons_source, 15, "das"));
-    other_list.append(JumpListItem(app_path, "/foo 3", "Email 3", "Something else", icons_source, 15, "das"));
+    //other_list.append(JumpListItem("C:\\file.mmm"));
+    other_list.append(JumpListItem(app_path, "/foo 1", "Email 1", "Something", icons_source, 15, app_dir_path));
+    other_list.append(JumpListItem(app_path, "/foo 3", "Email 2", "Something else", icons_source, 15, app_dir_path));
 
     mJumpList.SetAppID(g_app_id);
     mJumpList.Begin();
-    mJumpList.AddCategory("Starred (2)", other_list);
+    mJumpList.AddCategory("Unread (2)", other_list);
     //mJumpList.AddFrequentCategory();
     //mJumpList.AddRecentCategory();
     mJumpList.AddUserTasks(task_list);
     mJumpList.Commit();
 
-    mTaskbar->SetState(STATE_PAUSED);
-    mTaskbar->SetProgresValue(300, 900);
-
-    ui->tabWidget->widget(1)->setWindowIcon(QIcon(":/pause.png"));
-    mTabs->AddTab(ui->tabWidget->widget(0), QString("Tab 1"), QIcon(":/play.png"));
-    mTabs->AddTab(ui->tabWidget->widget(1), QString("Tab 2"));
-    mTabs->AddTab(ui->tabWidget->widget(2), QString("Tab 3"), QPixmap(":/logo.png"));
-    mTabs->SetActiveTab(ui->tabWidget->widget(2));
-    mToolbar->SetThumbnailClip(QRect(0, 0, 200, 200));
-    mToolbar->SetThumbnailTooltip("Thumbnail  tooltip.");
-    mToolbar->Show();
+    ui->pushButton->setDisabled(true);
 }
 
-void MainWindow::actionpressed() {
-    static bool value = true;
-
-    qDebug() << "Value = " << value;
-    special->setIcon(value ? QIcon(":/pause.png") : QIcon(":/play.png"));
-    special->setText(value ? "Pause" : "Play");
-    value = !value;
-}
-
-void MainWindow::tab_activated(QWidget* widget) {
-
-    this->activateWindow();
-
-    for (int index = 0; index < 3; index++) {
-        if (ui->tabWidget->widget(index) == widget) {
-            ui->tabWidget->setCurrentIndex(index);
-            break;
-        }
-    }
-}
-
-void MainWindow::tab_remove(int index) {
-    QWidget* widget = ui->tabWidget->widget(index);
-    ui->tabWidget->removeTab(index);
-    mTabs->RemoveTab(widget);
-
-    //widget = ui->tabWidget->currentWidget();
-    //if (widget) mTabs->SetActiveTab(widget);
-
-}
-
-void MainWindow::tab_remove(QWidget* widget) {
-    for (int index = 0; index < ui->tabWidget->count(); index++) {
-        if (widget == ui->tabWidget->widget(index)) {
-            tab_remove(index);
-            break;
-        }
-    }
-}
-
-void MainWindow::tab_set_active(int index) {
-    QWidget* widget = ui->tabWidget->widget(index);
-    if (widget) mTabs->SetActiveTab(widget);
-}

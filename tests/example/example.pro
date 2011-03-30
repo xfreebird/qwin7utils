@@ -42,6 +42,8 @@ LIBS += libqwin7utils libuser32 libole32 libshell32 libshlwapi libcomctl32 libgd
 RESOURCES += \
     icons.qrc
 
+#DEFINES += TRANSPARENT_WIDGET
+
 unix {
      error( "Windows only code !!!" )
 }

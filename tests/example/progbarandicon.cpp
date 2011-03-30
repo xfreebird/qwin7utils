@@ -34,13 +34,15 @@ ProgBarAndIcon::ProgBarAndIcon(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::ProgBarAndIcon)
 {
-    mProgressValue = MIN_VALUE;
     ui->setupUi(this);
 
+#ifdef TRANSPARENT_WIDGET
     //set window transparent
     EnableBlurBehindWidget(this, true);
     ExtendFrameIntoClientArea(this);
+#endif //TRANSPARENT_WIDGET
 
+    mProgressValue = MIN_VALUE;
     mTaskbarButton = new TaskbarButton(this);
 
     ui->progressBar->setMinimum(MIN_VALUE);

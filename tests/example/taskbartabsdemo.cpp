@@ -32,8 +32,23 @@ TaskbarTabsDemo::TaskbarTabsDemo(QWidget *parent) :
 {
     ui->setupUi(this);
 
+#ifdef TRANSPARENT_WIDGET
+    //set window transparent
+    EnableBlurBehindWidget(this, true);
+    ExtendFrameIntoClientArea(this);
+#endif //TRANSPARENT_WIDGET
+
     mTaskbarTabs = TaskbarTabs::GetInstance();
     mTaskbarTabs->SetParentWidget(this);
+
+    connect(mTaskbarTabs, SIGNAL(OnTabClicked(QWidget*)), this, SLOT(OnTabActivate(QWidget*)));
+    connect(mTaskbarTabs, SIGNAL(OnTabHover(QWidget*)), this, SLOT(OnTabActivate(QWidget*)));
+    connect(mTaskbarTabs, SIGNAL(OnTabClose(QWidget*)), this, SLOT(OnTabRemove(QWidget*)));
+
+    connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(OnTabActivate(int)));
+    connect(ui->tabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(OnTabRemove(int)));
+
+    connect(ui->actionAdd_Tab, SIGNAL(triggered()), this, SLOT(OnTabAdd()));
 
     connect(Taskbar::GetInstance(), SIGNAL(isReady()), this, SLOT(OnTaskbarReady()));
 }
@@ -51,6 +66,45 @@ void TaskbarTabsDemo::OnTaskbarReady() {
     mTaskbarTabs->AddTab(ui->tabWidget->widget(2), QString("Custom thumbnail"), QIcon(":/feed.png"), QPixmap(":/logo.png"));
     mTaskbarTabs->SetActiveTab(ui->tabWidget->widget(0));
 }
+
+void TaskbarTabsDemo::OnTabActivate(QWidget* widget) {
+    activateWindow();
+
+    for (int index = 0; index < ui->tabWidget->count(); index++) {
+        if (ui->tabWidget->widget(index) == widget) {
+            ui->tabWidget->setCurrentIndex(index);
+            break;
+        }
+    }
+
+}
+
+void TaskbarTabsDemo::OnTabRemove(QWidget* widget) {
+    for (int index = 0; index < ui->tabWidget->count(); index++) {
+        if (widget == ui->tabWidget->widget(index)) {
+            OnTabRemove(index);
+            break;
+        }
+    }
+}
+
+void TaskbarTabsDemo::OnTabActivate(int index) {
+    QWidget* widget = ui->tabWidget->widget(index);
+    if (widget) mTaskbarTabs->SetActiveTab(widget);
+}
+
+void TaskbarTabsDemo::OnTabRemove(int index) {
+    QWidget* widget = ui->tabWidget->widget(index);
+    ui->tabWidget->removeTab(index);
+    mTaskbarTabs->RemoveTab(widget);
+}
+
+void TaskbarTabsDemo::OnTabAdd() {
+    QWidget* widget = new QWidget();
+    ui->tabWidget->addTab(widget, "New Tab");
+    mTaskbarTabs->AddTab(widget, "New Tab");
+}
+
 
 TaskbarTabsDemo::~TaskbarTabsDemo()
 {
