@@ -17,6 +17,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#ifdef Q_OS_WIN32
+
 #include "Utils.h"
 namespace QW7 {
 
@@ -204,3 +206,5 @@ namespace QW7 {
     }
 
 }
+
+#endif //Q_OS_WIN32

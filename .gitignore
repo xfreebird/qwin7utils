@@ -4,3 +4,7 @@ libin/
 qwin7utils-build-simulator/
 src/*.pro.user
 *.pro.user
+*.o
+*.a
+Makefile
+moc_*.cpp
